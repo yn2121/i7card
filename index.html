@@ -7,22 +7,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #f7f4f0;
-  --surface: #ffffff;
-  --surface2: #f0ece6;
-  --border: #ddd8d0;
-  --accent: #c9541e;
-  --accent-light: #fdf0e8;
-  --text: #2d2520;
-  --text-muted: #8a7e76;
-  --rN: #9ca3af; --rR: #059669; --rSR: #2563eb; --rSSR: #7c3aed; --rUR: #d97706;
-  --s-list: #059669; --s-awake: #7c3aed; --s-bench: #d97706;
-  --s-viewed: #2563eb; --s-unseen: #9ca3af;
+  --bg:#f7f4f0; --surface:#fff; --surface2:#f0ece6; --border:#ddd8d0;
+  --accent:#c9541e; --text:#2d2520; --text-muted:#8a7e76;
+  --rN:#9ca3af; --rR:#059669; --rSR:#2563eb; --rSSR:#7c3aed; --rUR:#d97706;
+  --s-list:#059669; --s-awake:#7c3aed; --s-bench:#d97706; --s-viewed:#2563eb; --s-unseen:#9ca3af;
 }
 * { margin:0; padding:0; box-sizing:border-box; }
 body { background:var(--bg); color:var(--text); font-family:'Klee One',serif; min-height:100vh; }
 
-/* ヘッダー */
 header {
   background:var(--surface); border-bottom:2px solid var(--accent);
   padding:13px 22px; display:flex; align-items:center; justify-content:space-between;
@@ -32,10 +24,10 @@ header {
 .unofficial { font-size:.6rem; background:#fff3cd; color:#92400e; border:1px solid #fbbf24; border-radius:4px; padding:2px 7px; margin-left:6px; vertical-align:middle; }
 .header-right { display:flex; gap:7px; align-items:center; flex-wrap:wrap; }
 .update-info { font-size:.7rem; color:var(--text-muted); }
+.user-badge { font-size:.72rem; background:var(--surface2); border:1px solid var(--border); border-radius:20px; padding:3px 10px; color:var(--text-muted); }
 
 main { max-width:1060px; margin:0 auto; padding:20px 16px; }
 
-/* ボタン */
 .btn {
   padding:7px 14px; border:1.5px solid var(--border); background:var(--surface);
   color:var(--text); border-radius:7px; cursor:pointer; font-family:'Klee One',serif;
@@ -45,13 +37,27 @@ main { max-width:1060px; margin:0 auto; padding:20px 16px; }
 .btn-primary { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
 .btn-primary:hover { opacity:.85; color:#fff; }
 .btn-sm { padding:5px 11px; font-size:.73rem; }
+.btn-google {
+  display:flex; align-items:center; gap:10px;
+  padding:12px 24px; background:#fff; border:1.5px solid var(--border);
+  border-radius:8px; cursor:pointer; font-family:'Klee One',serif; font-size:.9rem;
+  transition:all .18s; margin:0 auto;
+}
+.btn-google:hover { border-color:#4285f4; box-shadow:0 2px 8px rgba(66,133,244,.15); }
+.btn-google img { width:20px; height:20px; }
 
+/* ログイン画面 */
+.login-screen {
+  max-width:420px; margin:80px auto; background:var(--surface);
+  border:1.5px solid var(--border); border-radius:14px; padding:40px;
+  text-align:center; box-shadow:0 4px 24px rgba(0,0,0,.07);
+}
+.login-screen .logo-big { font-family:'Rajdhani',sans-serif; font-size:2.2rem; font-weight:700; color:var(--accent); letter-spacing:.15em; margin-bottom:6px; }
+.login-screen p { font-size:.83rem; color:var(--text-muted); margin-bottom:28px; line-height:1.7; }
+.login-divider { font-size:.7rem; color:var(--text-muted); margin:16px 0; }
 
 /* プログレス */
-.progress-section {
-  background:var(--surface); border:1.5px solid var(--border); border-radius:12px;
-  padding:16px 20px; margin-bottom:18px;
-}
+.progress-section { background:var(--surface); border:1.5px solid var(--border); border-radius:12px; padding:16px 20px; margin-bottom:18px; }
 .progress-title { font-family:'Rajdhani',sans-serif; font-size:.75rem; letter-spacing:.1em; color:var(--text-muted); margin-bottom:10px; }
 .progress-stats { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px; align-items:center; }
 .p-chip { font-size:.75rem; display:flex; align-items:center; gap:4px; }
@@ -73,12 +79,9 @@ select.filter-sel { cursor:pointer; }
 
 /* タブ */
 .status-tabs { display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap; }
-.stab {
-  padding:5px 13px; border-radius:20px; font-size:.73rem; cursor:pointer;
-  border:1.5px solid var(--border); color:var(--text-muted); transition:all .15s; user-select:none;
-}
+.stab { padding:5px 13px; border-radius:20px; font-size:.73rem; cursor:pointer; border:1.5px solid var(--border); color:var(--text-muted); transition:all .15s; user-select:none; }
 .stab.active { color:#fff; font-weight:600; }
-.stab[data-s=""].active        { background:#2d2520; border-color:#2d2520; color:#fff; }
+.stab[data-s=""].active        { background:#2d2520; border-color:#2d2520; }
 .stab[data-s="list"].active    { background:var(--s-list);   border-color:var(--s-list); }
 .stab[data-s="awake"].active   { background:var(--s-awake);  border-color:var(--s-awake); }
 .stab[data-s="bench"].active   { background:var(--s-bench);  border-color:var(--s-bench); }
@@ -90,29 +93,22 @@ select.filter-sel { cursor:pointer; }
 .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(195px,1fr)); gap:11px; }
 .card {
   background:var(--surface); border:1.5px solid var(--border); border-radius:10px;
-  padding:12px; transition:all .18s; position:relative; overflow:hidden;
-  animation:fadeIn .22s ease both;
+  padding:12px; transition:all .18s; position:relative; overflow:hidden; animation:fadeIn .22s ease both;
 }
 @keyframes fadeIn { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:translateY(0)} }
 .card::before { content:''; position:absolute; top:0;left:0;right:0;height:3px; background:var(--rc); }
 .card:hover { transform:translateY(-2px); box-shadow:0 5px 18px rgba(0,0,0,.09); }
-
 .card-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; }
 .card-name { font-size:.86rem; font-weight:600; line-height:1.3; }
 .card-chara { font-size:.68rem; color:var(--text-muted); margin-top:2px; }
 .card-meta { display:flex; flex-direction:column; align-items:flex-end; gap:3px; }
 .card-id { font-family:'Rajdhani',sans-serif; font-size:.68rem; color:var(--text-muted); }
-
-.badge-rare {
-  display:inline-block; padding:1px 7px; border-radius:4px;
-  font-family:'Rajdhani',sans-serif; font-weight:700; font-size:.67rem; letter-spacing:.04em;
-}
+.badge-rare { display:inline-block; padding:1px 7px; border-radius:4px; font-family:'Rajdhani',sans-serif; font-weight:700; font-size:.67rem; }
 .badge-N  { background:#f3f4f6; color:var(--rN); border:1px solid #d1d5db; }
 .badge-R  { background:#ecfdf5; color:var(--rR); border:1px solid #a7f3d0; }
 .badge-SR { background:#eff6ff; color:var(--rSR); border:1px solid #bfdbfe; }
 .badge-SSR{ background:#f5f3ff; color:var(--rSSR); border:1px solid #ddd6fe; }
 .badge-UR { background:#fffbeb; color:var(--rUR); border:1px solid #fde68a; }
-
 .awaken-hint { font-size:.65rem; color:var(--text-muted); margin-bottom:7px; }
 
 .status-select {
@@ -128,37 +124,28 @@ select.filter-sel { cursor:pointer; }
 .status-select[data-v="viewed"] { background-color:#eff6ff; border-color:#bfdbfe; color:#1e40af; }
 .status-select[data-v="unseen"] { background-color:#f9fafb; border-color:#e5e7eb; color:#6b7280; }
 
-
 /* スキルLv */
-.skill-lv-wrap {
-  display:flex; align-items:center; justify-content:space-between;
-  margin-top:7px; padding-top:7px; border-top:1px solid var(--border);
-}
+.skill-lv-wrap { display:flex; align-items:center; justify-content:space-between; margin-top:7px; padding-top:7px; border-top:1px solid var(--border); }
 .skill-lv-label { font-size:.68rem; color:var(--text-muted); }
 .lv-stepper { display:flex; align-items:center; gap:4px; }
-.lv-btn {
-  width:22px; height:22px; border-radius:5px; border:1.5px solid var(--border);
-  background:var(--surface2); color:var(--text); cursor:pointer; font-size:.85rem;
-  display:flex; align-items:center; justify-content:center; transition:all .15s;
-  font-family:'Klee One',serif; padding:0; line-height:1;
-}
+.lv-btn { width:22px; height:22px; border-radius:5px; border:1.5px solid var(--border); background:var(--surface2); color:var(--text); cursor:pointer; font-size:.85rem; display:flex; align-items:center; justify-content:center; transition:all .15s; font-family:'Klee One',serif; padding:0; line-height:1; }
 .lv-btn:hover { border-color:var(--accent); color:var(--accent); }
 .lv-btn:disabled { opacity:.3; cursor:default; }
 .lv-val { font-family:'Rajdhani',sans-serif; font-size:.9rem; font-weight:700; color:var(--accent); min-width:20px; text-align:center; }
 .lv-max { font-size:.65rem; color:var(--text-muted); }
 
+/* 保存インジケーター */
+.save-indicator { font-size:.68rem; color:var(--text-muted); display:flex; align-items:center; gap:4px; }
+.save-dot { width:6px; height:6px; border-radius:50%; background:#d1d5db; }
+.save-dot.saving { background:#f59e0b; animation:pulse .6s infinite; }
+.save-dot.saved  { background:#10b981; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
 .empty { grid-column:1/-1; text-align:center; padding:48px 20px; color:var(--text-muted); }
 .empty .icon { font-size:2.4rem; margin-bottom:10px; }
-
-/* ローディング */
 .loading { text-align:center; padding:60px 20px; color:var(--text-muted); }
-.spinner {
-  width:36px; height:36px; border:3px solid var(--border);
-  border-top-color:var(--accent); border-radius:50%;
-  animation:spin .8s linear infinite; margin:0 auto 16px;
-}
+.spinner { width:36px; height:36px; border:3px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin .8s linear infinite; margin:0 auto 16px; }
 @keyframes spin { to{transform:rotate(360deg)} }
-
 ::-webkit-scrollbar { width:6px; }
 ::-webkit-scrollbar-track { background:var(--bg); }
 ::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
@@ -166,28 +153,39 @@ select.filter-sel { cursor:pointer; }
 </head>
 <body>
 
-<header id="main-header">
+<header>
   <div>
     <span class="logo">i7card</span>
     <span class="unofficial">非公式ファンサイト</span>
   </div>
   <div class="header-right">
     <span class="update-info" id="update-info"></span>
+    <div class="save-indicator"><div class="save-dot" id="save-dot"></div><span id="save-text"></span></div>
+    <span class="user-badge" id="user-badge" style="display:none"></span>
     <button class="btn btn-sm" onclick="fetchCards(true)">🔄 カード更新</button>
-    <button class="btn btn-sm" onclick="exportMyData()">💾 自分のデータ保存</button>
-    <button class="btn btn-sm" onclick="document.getElementById('my-input').click()">📂 データ読込</button>
-    <input type="file" id="my-input" accept=".json" style="display:none" onchange="importMyData(event)">
+    <button class="btn btn-sm" id="logout-btn" style="display:none" onclick="logout()">ログアウト</button>
   </div>
 </header>
 
+<!-- ログイン画面 -->
+<div id="login-screen">
+  <div class="login-screen">
+    <div class="logo-big">i7card</div>
+    <p>Googleアカウントでログインすると<br>どの端末からでも所持データが同期されます</p>
+    <button class="btn-google" onclick="loginWithGoogle()">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+      Googleでログイン
+    </button>
+  </div>
+</div>
+
 <!-- メイン -->
-<main id="main-content">
+<main id="main-content" style="display:none">
   <div class="progress-section">
     <div class="progress-title">◆ GALLERY PROGRESS</div>
     <div class="progress-stats" id="prog-stats"></div>
     <div class="progress-bar" id="prog-bar"></div>
   </div>
-
   <div class="toolbar">
     <input type="text" class="search" id="q" placeholder="カード名・キャラ名で検索..." oninput="render()">
     <select class="filter-sel" id="f-rare" onchange="render()">
@@ -198,7 +196,6 @@ select.filter-sel { cursor:pointer; }
       <option value="">全キャラ</option>
     </select>
   </div>
-
   <div class="status-tabs">
     <div class="stab active" data-s="" onclick="setTab(this)">すべて <span class="cnt-badge" id="cnt-all">0</span></div>
     <div class="stab" data-s="list"   onclick="setTab(this)">🟢 一覧 <span class="cnt-badge" id="cnt-list">0</span></div>
@@ -207,113 +204,176 @@ select.filter-sel { cursor:pointer; }
     <div class="stab" data-s="viewed" onclick="setTab(this)">🔵 未所持閲覧済 <span class="cnt-badge" id="cnt-viewed">0</span></div>
     <div class="stab" data-s="unseen" onclick="setTab(this)">⚪ 未所持未閲覧 <span class="cnt-badge" id="cnt-unseen">0</span></div>
   </div>
-
   <div id="card-grid" class="grid"></div>
 </main>
 
+<!-- Google Identity Services -->
+<script src="https://accounts.google.com/gsi/client" async></script>
+
 <script>
 // =====================================================
-// 定数・設定
+// 設定
 // =====================================================
-const GAS_URL      = 'https://script.google.com/macros/s/AKfycbyuvmwmpji5CksgblVTYOz9RDQtuf3-MrHvZc6EPC8UMlDO4OT3yh07dHqU4TSLpovU/exec';
-const MASTER_KEY   = 'i7card_master';
-const MY_KEY       = 'i7card_mydata';
-const UPDATED_KEY  = 'i7card_updatedat';
+const GAS_URL     = 'https://script.google.com/macros/s/AKfycbyNyyISGhK3COhtH4oYyrOXDUOtCm6nMbeg8PwmoQDrj0_htZ3b0cIb5R3N9d7xFsXJ/exec';
+const MASTER_KEY  = 'i7card_master';
+const UPDATED_KEY = 'i7card_updatedat';
+const USER_KEY    = 'i7card_user';
 
 const SKILL_MAX = { N:0, R:0, SR:3, SSR:4, UR:5 };
-
 const STATUS_LABELS = {
-  list:   '🟢 一覧',
-  awake:  '🟣 覚醒/お別れ済',
-  bench:  '🟡 控え室',
-  viewed: '🔵 未所持閲覧済',
-  unseen: '⚪ 未所持未閲覧',
+  list:'🟢 一覧', awake:'🟣 覚醒/お別れ済', bench:'🟡 控え室',
+  viewed:'🔵 未所持閲覧済', unseen:'⚪ 未所持未閲覧',
 };
 const RARITY_COLORS = { N:'#9ca3af', R:'#059669', SR:'#2563eb', SSR:'#7c3aed', UR:'#d97706' };
-
-// スプシのヘッダー列名（スプレッドシートの1行目と合わせてください）
-const COL = {
-  id:      'カードID',
-  name:    'カード名',
-  chara:   '名前',        // キャラ名列
-  rarity:  'レア',
-  awaken:  '覚醒先ID',   // 任意列（なければ空でOK）
-  note:    'メモ',        // 任意列
-};
+const COL = { id:'カードID', name:'カード名', chara:'名前', rarity:'レア', awaken:'覚醒先ID', note:'メモ' };
 
 // =====================================================
 // 状態
 // =====================================================
 let masterCards = [];
-let myData = {};
-let activeTab = '';
+let myData      = {};
+let activeTab   = '';
+let currentUser = null;  // { id, name, email }
+let saveTimer   = null;
 
 // =====================================================
-// セットアップ
+// Googleログイン
 // =====================================================
+function loginWithGoogle() {
+  // Google Identity Services の One Tap を使用
+  google.accounts.id.initialize({
+    // ★ Google Cloud Console で取得したクライアントIDに差し替えてください
+    client_id: '464379591833-6pq6rdoid80rp1ftnepc9mm5b3vrku0i.apps.googleusercontent.com',
+    callback: handleCredential,
+    auto_select: true,
+  });
+  google.accounts.id.prompt();
+}
+
+function handleCredential(response) {
+  // JWTをデコードしてユーザー情報取得
+  const payload = parseJwt(response.credential);
+  currentUser = {
+    id:    payload.sub,   // GoogleユーザーID（一意）
+    name:  payload.name,
+    email: payload.email,
+  };
+  localStorage.setItem(USER_KEY, JSON.stringify(currentUser));
+  onLogin();
+}
+
+function parseJwt(token) {
+  const base64 = token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/');
+  return JSON.parse(decodeURIComponent(atob(base64).split('').map(c =>
+    '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+  ).join('')));
+}
+
+async function onLogin() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('main-content').style.display = '';
+  document.getElementById('user-badge').textContent = currentUser.name;
+  document.getElementById('user-badge').style.display = '';
+  document.getElementById('logout-btn').style.display = '';
+
+  // カードマスター読み込み
+  await fetchCards(false);
+  // 所持データ読み込み
+  await loadMyData();
+  render();
+}
+
+function logout() {
+  if (!confirm('ログアウトしますか？')) return;
+  currentUser = null;
+  myData = {};
+  localStorage.removeItem(USER_KEY);
+  document.getElementById('login-screen').style.display = '';
+  document.getElementById('main-content').style.display = 'none';
+  document.getElementById('user-badge').style.display = 'none';
+  document.getElementById('logout-btn').style.display = 'none';
+}
+
 // =====================================================
 // GASからカード取得
 // =====================================================
 async function fetchCards(isUpdate = false) {
-  const url = GAS_URL;
-  if (!url) return;
-
-  const grid = document.getElementById('card-grid');
   if (isUpdate) {
-    grid.innerHTML = `<div class="loading"><div class="spinner"></div>カードデータを更新中...</div>`;
-  } else {
-    document.getElementById('main-content').innerHTML =
-      `<div class="loading" style="margin-top:80px"><div class="spinner"></div>データを読み込み中...</div>`;
+    document.getElementById('card-grid').innerHTML =
+      `<div class="loading"><div class="spinner"></div>カードデータを更新中...</div>`;
   }
-
   try {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const res  = await fetch(`${GAS_URL}?action=cards`);
     const data = await res.json();
-
     if (data.error) throw new Error(data.error);
 
-    // スプシの列名→内部形式に変換
     masterCards = (data.cards || []).map(row => ({
-      id:      String(row[COL.id] || ''),
-      name:    String(row[COL.name] || ''),
-      chara:   String(row[COL.chara] || ''),
-      rarity:  String(row[COL.rarity] || 'N'),
-      awakenId:String(row[COL.awaken] || ''),
-      note:    String(row[COL.note] || ''),
+      id:       String(row[COL.id]     || ''),
+      name:     String(row[COL.name]   || ''),
+      chara:    String(row[COL.chara]  || ''),
+      rarity:   String(row[COL.rarity] || 'N'),
+      awakenId: String(row[COL.awaken] || ''),
     })).filter(c => c.name);
 
     localStorage.setItem(MASTER_KEY, JSON.stringify(masterCards));
     localStorage.setItem(UPDATED_KEY, data.updatedAt || new Date().toISOString());
 
-    myData = JSON.parse(localStorage.getItem(MY_KEY) || '{}');
-    showApp();
+    const d = new Date(localStorage.getItem(UPDATED_KEY));
+    document.getElementById('update-info').textContent =
+      `最終更新: ${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
 
+    buildCharaFilter();
+    if (isUpdate) render();
   } catch (err) {
-    if (isUpdate) {
-      grid.innerHTML = `<div class="empty"><div class="icon">⚠️</div><p>更新に失敗しました: ${err.message}</p></div>`;
-    } else {
-      document.getElementById('card-grid').innerHTML = `<div class='empty'><div class='icon'>⚠️</div><p>データの取得に失敗しました: ${err.message}</p></div>`;
-    }
+    document.getElementById('card-grid').innerHTML =
+      `<div class="empty"><div class="icon">⚠️</div><p>カード取得に失敗: ${err.message}</p></div>`;
   }
 }
 
 // =====================================================
-// アプリ表示
+// 所持データ読み込み（GASから）
 // =====================================================
-function showApp() {
-  document.getElementById('main-header').style.display = '';
-  document.getElementById('main-content').style.display = '';
-
-  const updatedAt = localStorage.getItem(UPDATED_KEY);
-  if (updatedAt) {
-    const d = new Date(updatedAt);
-    document.getElementById('update-info').textContent =
-      `最終更新: ${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
+async function loadMyData() {
+  if (!currentUser) return;
+  setSaveState('saving');
+  try {
+    const res  = await fetch(`${GAS_URL}?action=load&user=${encodeURIComponent(currentUser.id)}`);
+    const data = await res.json();
+    if (data.ok) {
+      myData = data.myData || {};
+    }
+    setSaveState('saved');
+  } catch {
+    // 失敗してもローカルキャッシュで続行
+    setSaveState('');
   }
+}
 
-  buildCharaFilter();
-  render();
+// =====================================================
+// 所持データ保存（GASへ）— デバウンス付き
+// =====================================================
+function scheduleSave() {
+  setSaveState('saving');
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    if (!currentUser) return;
+    try {
+      await fetch(GAS_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action:'save', user: currentUser.id, data: myData }),
+      });
+      setSaveState('saved');
+    } catch {
+      setSaveState('');
+    }
+  }, 1200); // 1.2秒後に保存（連続操作をまとめる）
+}
+
+function setSaveState(state) {
+  const dot  = document.getElementById('save-dot');
+  const text = document.getElementById('save-text');
+  dot.className = 'save-dot' + (state ? ' ' + state : '');
+  text.textContent = state === 'saving' ? '保存中...' : state === 'saved' ? '保存済み' : '';
 }
 
 // =====================================================
@@ -325,8 +385,7 @@ function buildCharaFilter() {
   sel.innerHTML = '<option value="">全キャラ</option>';
   charas.forEach(ch => {
     const o = document.createElement('option');
-    o.value = ch; o.textContent = ch;
-    sel.appendChild(o);
+    o.value = ch; o.textContent = ch; sel.appendChild(o);
   });
 }
 
@@ -343,7 +402,7 @@ function getFiltered() {
     if (r && c.rarity !== r) return false;
     if (ch && c.chara !== ch) return false;
     return true;
-  }).sort((a, b) => Number(a.id) - Number(b.id));
+  }).sort((a,b) => Number(a.id) - Number(b.id));
 }
 
 function setTab(el) {
@@ -357,31 +416,24 @@ function setTab(el) {
 // 描画
 // =====================================================
 function render() {
-  updateCounts();
-  updateProgress();
-
+  updateCounts(); updateProgress();
   const list = getFiltered();
   const grid = document.getElementById('card-grid');
-
   if (!list.length) {
     grid.innerHTML = `<div class="empty"><div class="icon">🎴</div><p>カードが見つかりません</p></div>`;
     return;
   }
-
   grid.innerHTML = '';
   list.forEach((c, i) => {
     const status = myData[c.id] || 'unseen';
     const rc = RARITY_COLORS[c.rarity] || '#9ca3af';
-
-    // 覚醒先
-    const awakenCard = c.awakenId
-      ? masterCards.find(x => x.id === c.awakenId)
-      : null;
+    const awakenCard = c.awakenId ? masterCards.find(x => x.id === c.awakenId) : null;
+    const max = SKILL_MAX[c.rarity] || 0;
+    const lv  = myData[c.id + '_lv'] ?? 0;
 
     const el = document.createElement('div');
     el.className = 'card';
-    el.style.cssText = `--rc:${rc}; animation-delay:${i * .018}s`;
-
+    el.style.cssText = `--rc:${rc}; animation-delay:${i*.018}s`;
     el.innerHTML = `
       <div class="card-top">
         <div>
@@ -394,30 +446,34 @@ function render() {
         </div>
       </div>
       ${awakenCard ? `<div class="awaken-hint">→ 覚醒: ${esc(awakenCard.name)}</div>` : ''}
-      <select class="status-select" data-v="${status}"
-        onchange="changeStatus('${c.id}', this)">
-        ${Object.entries(STATUS_LABELS).map(([v, label]) =>
-          `<option value="${v}" ${status === v ? 'selected' : ''}>${label}</option>`
+      <select class="status-select" data-v="${status}" onchange="changeStatus('${c.id}',this)">
+        ${Object.entries(STATUS_LABELS).map(([v,label]) =>
+          `<option value="${v}" ${status===v?'selected':''}>${label}</option>`
         ).join('')}
       </select>
-      ${(() => {
-        const max = SKILL_MAX[c.rarity] || 0;
-        if (!max) return '';
-        const lv = (myData[c.id + '_lv'] ?? 0);
-        return `<div class="skill-lv-wrap">
-          <span class="skill-lv-label">スキルLv</span>
-          <div class="lv-stepper">
-            <button class="lv-btn" onclick="changeLv('${c.id}',${max},-1,this)" ${lv<=0?'disabled':''}>−</button>
-            <span class="lv-val">${lv}</span>
-            <button class="lv-btn" onclick="changeLv('${c.id}',${max},1,this)" ${lv>=max?'disabled':''}>＋</button>
-            <span class="lv-max">/ ${max}</span>
-          </div>
-        </div>`;
-      })()}
-
+      ${max ? `<div class="skill-lv-wrap">
+        <span class="skill-lv-label">スキルLv</span>
+        <div class="lv-stepper">
+          <button class="lv-btn" onclick="changeLv('${c.id}',${max},-1,this)" ${lv<=0?'disabled':''}>−</button>
+          <span class="lv-val">${lv}</span>
+          <button class="lv-btn" onclick="changeLv('${c.id}',${max},1,this)" ${lv>=max?'disabled':''}>＋</button>
+          <span class="lv-max">/ ${max}</span>
+        </div>
+      </div>` : ''}
     `;
     grid.appendChild(el);
   });
+}
+
+// =====================================================
+// ステータス・スキルLv変更
+// =====================================================
+function changeStatus(id, sel) {
+  myData[id] = sel.value;
+  sel.dataset.v = sel.value;
+  scheduleSave();
+  updateCounts(); updateProgress();
+  if (activeTab && myData[id] !== activeTab) setTimeout(() => render(), 180);
 }
 
 function changeLv(id, max, delta, btn) {
@@ -429,22 +485,7 @@ function changeLv(id, max, delta, btn) {
   valEl.textContent = next;
   stepper.querySelectorAll('.lv-btn')[0].disabled = (next <= 0);
   stepper.querySelectorAll('.lv-btn')[1].disabled = (next >= max);
-  saveMyData();
-}
-
-function changeStatus(id, sel) {
-  myData[id] = sel.value;
-  sel.dataset.v = sel.value;
-  saveMyData();
-  updateCounts();
-  updateProgress();
-  if (activeTab && myData[id] !== activeTab) {
-    setTimeout(() => render(), 180);
-  }
-}
-
-function saveMyData() {
-  localStorage.setItem(MY_KEY, JSON.stringify(myData));
+  scheduleSave();
 }
 
 // =====================================================
@@ -465,10 +506,8 @@ function updateProgress() {
   if (!total) return;
   const counts = { list:0, awake:0, bench:0, viewed:0, unseen:0 };
   masterCards.forEach(c => { counts[myData[c.id] || 'unseen']++; });
-
   const filled = counts.list + counts.awake + counts.bench + counts.viewed;
   const pct = Math.round(filled / total * 100);
-
   const segs = [
     { key:'list',   color:'var(--s-list)',   label:'一覧' },
     { key:'awake',  color:'var(--s-awake)',  label:'覚醒/お別れ済' },
@@ -476,65 +515,25 @@ function updateProgress() {
     { key:'viewed', color:'var(--s-viewed)', label:'未所持閲覧済' },
     { key:'unseen', color:'#e5e7eb',         label:'未所持未閲覧' },
   ];
-
   document.getElementById('prog-stats').innerHTML =
-    segs.map(s =>
-      `<div class="p-chip">
-        <div class="p-dot" style="background:${s.color}"></div>
-        ${s.label} <strong>${counts[s.key]}</strong>
-      </div>`
-    ).join('') +
+    segs.map(s => `<div class="p-chip"><div class="p-dot" style="background:${s.color}"></div>${s.label} <strong>${counts[s.key]}</strong></div>`).join('') +
     `<div class="pct-text">${pct}% 埋まり</div>`;
-
   document.getElementById('prog-bar').innerHTML =
-    segs.map(s =>
-      `<div class="progress-seg"
-        style="width:${counts[s.key]/total*100}%;background:${s.color}">
-      </div>`
-    ).join('');
+    segs.map(s => `<div class="progress-seg" style="width:${counts[s.key]/total*100}%;background:${s.color}"></div>`).join('');
 }
 
-// =====================================================
-// 自分データ export/import
-// =====================================================
-function exportMyData() {
-  const data = { version:1, savedAt: new Date().toISOString(), myData };
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `i7card_mydata_${new Date().toISOString().slice(0,10)}.json`;
-  a.click();
-}
-
-function importMyData(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    try {
-      const data = JSON.parse(ev.target.result);
-      myData = data.myData || data;
-      saveMyData();
-      render();
-      alert('自分のデータを読み込みました');
-    } catch { alert('ファイルの形式が正しくありません'); }
-  };
-  reader.readAsText(file);
-  e.target.value = '';
-}
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 // =====================================================
-// ユーティリティ
+// 起動 — ログイン状態を復元
 // =====================================================
-function esc(s) {
-  return String(s || '')
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-// =====================================================
-// 起動
-// =====================================================
-window.addEventListener('load', () => { fetchCards(false); });
+window.addEventListener('load', async () => {
+  const saved = localStorage.getItem(USER_KEY);
+  if (saved) {
+    currentUser = JSON.parse(saved);
+    await onLogin();
+  }
+});
 </script>
 </body>
 </html>
