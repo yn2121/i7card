@@ -443,18 +443,31 @@ function buildCharaFilter() {
   const allCharas = [...new Set(masterCards.map(c => c.chara))].filter(Boolean);
   const container = document.getElementById('f-chara-tags');
   container.innerHTML = '';
+  const listed = new Set();
+
+  const addTag = (ch) => {
+    const d = document.createElement('div');
+    d.className = 'ftag' + (selectedCharas.has(ch) ? ' on' : '');
+    d.dataset.v = ch; d.textContent = ch;
+    d.onclick = () => toggleCharaTag(d);
+    container.appendChild(d);
+    listed.add(ch);
+  };
+
+  const addSep = (label) => {
+    const s = document.createElement('div');
+    s.style.cssText = 'font-size:.65rem;color:var(--text-muted);padding:2px 4px;align-self:center;width:100%;margin-top:4px;';
+    s.textContent = label;
+    container.appendChild(s);
+  };
 
   // 主要16人（順番通り）
-  const main = MAIN_CHARAS.filter(ch => allCharas.includes(ch));
-  main.forEach(ch => addTag(ch));
+  MAIN_CHARAS.filter(ch => allCharas.includes(ch)).forEach(ch => addTag(ch));
 
   // ユニット名
   const units = UNIT_CHARAS.filter(ch => allCharas.includes(ch));
   if (units.length) {
-    const sep = document.createElement('div');
-    sep.style.cssText = 'font-size:.65rem;color:var(--text-muted);padding:2px 4px;align-self:center;width:100%;margin-top:4px;';
-    sep.textContent = 'ユニット';
-    container.appendChild(sep);
+    addSep('ユニット');
     units.forEach(ch => addTag(ch));
   }
 
@@ -462,13 +475,8 @@ function buildCharaFilter() {
   const known = new Set([...MAIN_CHARAS, ...UNIT_CHARAS]);
   const other = allCharas.filter(ch => !known.has(ch)).sort();
   if (other.length) {
-    const sep = document.createElement('option');
-    sep.disabled = true; sep.textContent = '── その他 ──';
-    sel.appendChild(sep);
-    other.forEach(ch => {
-      const o = document.createElement('option');
-      o.value = ch; o.textContent = ch; sel.appendChild(o);
-    });
+    addSep('その他');
+    other.forEach(ch => addTag(ch));
   }
 }
 
