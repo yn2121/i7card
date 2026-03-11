@@ -22,9 +22,9 @@ header {
   flex-wrap:wrap; gap:8px; position:sticky; top:0; z-index:100;
 }
 .logo { font-family:'Rajdhani',sans-serif; font-size:1.3rem; font-weight:700; color:var(--accent); letter-spacing:.1em; }
-.unofficial { font-size:1rem; background:#e8eef8; color:#2a5298; border:1px solid #c5d3e8; border-radius:4px; padding:3px 10px; margin-left:8px; vertical-align:middle; font-weight:500; }
-.header-right { display:flex; gap:7px; align-items:center; flex-wrap:wrap; }
-.update-info { font-size:.7rem; color:var(--text-muted); }
+.unofficial { font-size:.8rem; background:#e8eef8; color:#2a5298; border:1px solid #c5d3e8; border-radius:4px; padding:2px 8px; margin-left:6px; vertical-align:middle; font-weight:500; white-space:nowrap; }
+.header-right { display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
+.update-info { font-size:.68rem; color:var(--text-muted); white-space:nowrap; }
 .user-badge { font-size:.72rem; background:#dde6f5; border:1px solid var(--border); border-radius:20px; padding:3px 10px; color:var(--accent); font-weight:500; }
 
 main { max-width:1060px; margin:0 auto; padding:20px 16px; }
@@ -37,7 +37,7 @@ main { max-width:1060px; margin:0 auto; padding:20px 16px; }
 .btn:hover { border-color:var(--accent); color:var(--accent); }
 .btn-primary { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
 .btn-primary:hover { opacity:.85; color:#fff; }
-.btn-sm { padding:5px 11px; font-size:.73rem; }
+.btn-sm { padding:4px 10px; font-size:.72rem; }
 .btn-google {
   display:flex; align-items:center; gap:10px;
   padding:12px 24px; background:#fff; border:1.5px solid var(--border);
@@ -73,6 +73,16 @@ main { max-width:1060px; margin:0 auto; padding:20px 16px; }
 
 /* フィルター */
 .toolbar { display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; align-items:center; }
+.filter-tags-section { margin-bottom:14px; display:flex; flex-direction:column; gap:10px; }
+.filter-group-label { font-size:.68rem; color:var(--text-muted); margin-bottom:5px; }
+.tags { display:flex; gap:5px; flex-wrap:wrap; }
+.ftag {
+  padding:4px 11px; border-radius:20px; font-size:.74rem; cursor:pointer;
+  border:1.5px solid var(--border); color:var(--text-muted);
+  transition:all .15s; user-select:none; background:var(--surface);
+}
+.ftag:hover { border-color:var(--accent); color:var(--accent); }
+.ftag.on { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
 input[type=text].search, select.filter-sel {
   padding:7px 12px; background:var(--surface); border:1.5px solid var(--border);
   border-radius:7px; color:var(--text); font-family:'M PLUS 1p',sans-serif; font-size:.82rem;
@@ -162,8 +172,8 @@ select.filter-sel { cursor:pointer; }
 
 <header>
   <div>
+    <span class="unofficial">非公式</span>
     <span class="logo">i7card manager</span>
-    <span class="unofficial">非公式カード管理サイト</span>
   </div>
   <div class="header-right">
     <span class="update-info" id="update-info"></span>
@@ -200,13 +210,22 @@ select.filter-sel { cursor:pointer; }
   </div>
   <div class="toolbar">
     <input type="text" class="search" id="q" placeholder="カード名・キャラ名で検索..." oninput="render()">
-    <select class="filter-sel" id="f-rare" onchange="render()">
-      <option value="">全レア</option>
-      <option>N</option><option>R</option><option>SR</option><option>SSR</option><option>UR</option>
-    </select>
-    <select class="filter-sel" id="f-chara" onchange="render()">
-      <option value="">全キャラ</option>
-    </select>
+  </div>
+  <div class="filter-tags-section">
+    <div class="filter-group">
+      <div class="filter-group-label">レアリティ</div>
+      <div class="tags" id="f-rare-tags">
+        <div class="ftag" data-v="N" onclick="toggleRareTag(this)">N</div>
+        <div class="ftag" data-v="R" onclick="toggleRareTag(this)">R</div>
+        <div class="ftag" data-v="SR" onclick="toggleRareTag(this)">SR</div>
+        <div class="ftag" data-v="SSR" onclick="toggleRareTag(this)">SSR</div>
+        <div class="ftag" data-v="UR" onclick="toggleRareTag(this)">UR</div>
+      </div>
+    </div>
+    <div class="filter-group">
+      <div class="filter-group-label">キャラクター</div>
+      <div class="tags" id="f-chara-tags"></div>
+    </div>
   </div>
   <div class="status-tabs">
     <div class="stab" data-s="" onclick="setTab(this)">すべて <span class="cnt-badge" id="cnt-all">0</span></div>
@@ -245,8 +264,10 @@ const COL = { id:'カードID', name:'カード名', chara:'名前', rarity:'レ
 let masterCards = [];
 let myData      = {};
 let activeTab   = 'list';
-let currentUser = null;  // { id, name, email }
+let currentUser = null;
 let saveTimer   = null;
+let selectedRares  = new Set();
+let selectedCharas = new Set();
 
 // =====================================================
 // Googleログイン
@@ -420,26 +441,21 @@ const UNIT_CHARAS = ['IDOLiSH7','TRIGGER','Re:vale','ZOOL','MEZZO'];
 
 function buildCharaFilter() {
   const allCharas = [...new Set(masterCards.map(c => c.chara))].filter(Boolean);
-  const sel = document.getElementById('f-chara');
-  sel.innerHTML = '<option value="">全キャラ</option>';
+  const container = document.getElementById('f-chara-tags');
+  container.innerHTML = '';
 
   // 主要16人（順番通り）
   const main = MAIN_CHARAS.filter(ch => allCharas.includes(ch));
-  main.forEach(ch => {
-    const o = document.createElement('option');
-    o.value = ch; o.textContent = ch; sel.appendChild(o);
-  });
+  main.forEach(ch => addTag(ch));
 
   // ユニット名
   const units = UNIT_CHARAS.filter(ch => allCharas.includes(ch));
   if (units.length) {
-    const sep = document.createElement('option');
-    sep.disabled = true; sep.textContent = '── ユニット ──';
-    sel.appendChild(sep);
-    units.forEach(ch => {
-      const o = document.createElement('option');
-      o.value = ch; o.textContent = ch; sel.appendChild(o);
-    });
+    const sep = document.createElement('div');
+    sep.style.cssText = 'font-size:.65rem;color:var(--text-muted);padding:2px 4px;align-self:center;width:100%;margin-top:4px;';
+    sep.textContent = 'ユニット';
+    container.appendChild(sep);
+    units.forEach(ch => addTag(ch));
   }
 
   // その他
@@ -460,16 +476,28 @@ function buildCharaFilter() {
 // フィルター・タブ
 // =====================================================
 function getFiltered() {
-  const q  = document.getElementById('q').value.toLowerCase();
-  const r  = document.getElementById('f-rare').value;
-  const ch = document.getElementById('f-chara').value;
+  const q = document.getElementById('q').value.toLowerCase();
   return masterCards.filter(c => {
     if (activeTab && (myData[c.id] || 'unseen') !== activeTab) return false;
     if (q && !c.name.toLowerCase().includes(q) && !c.chara.toLowerCase().includes(q)) return false;
-    if (r && c.rarity !== r) return false;
-    if (ch && c.chara !== ch) return false;
+    if (selectedRares.size  && !selectedRares.has(c.rarity)) return false;
+    if (selectedCharas.size && !selectedCharas.has(c.chara))  return false;
     return true;
   }).sort((a,b) => Number(a.id) - Number(b.id));
+}
+
+function toggleRareTag(el) {
+  const v = el.dataset.v;
+  if (selectedRares.has(v)) { selectedRares.delete(v); el.classList.remove('on'); }
+  else { selectedRares.add(v); el.classList.add('on'); }
+  render();
+}
+
+function toggleCharaTag(el) {
+  const v = el.dataset.v;
+  if (selectedCharas.has(v)) { selectedCharas.delete(v); el.classList.remove('on'); }
+  else { selectedCharas.add(v); el.classList.add('on'); }
+  render();
 }
 
 function setTab(el) {
