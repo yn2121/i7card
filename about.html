@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>【非公式】i7card manager — このサイトについて</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@400;500;700&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#eef2f7; --surface:#fff; --surface2:#e3eaf4; --border:#c5d3e8;
+  --accent:#2a5298; --text:#1a2744; --text-muted:#6b7fa8;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'M PLUS 1p',sans-serif; min-height:100vh; }
+
+header {
+  background:var(--surface); border-bottom:2px solid var(--accent);
+  padding:13px 22px; display:flex; align-items:center; justify-content:space-between;
+  box-shadow:0 2px 12px rgba(42,82,152,.10);
+}
+.logo { font-family:'Rajdhani',sans-serif; font-size:1.3rem; font-weight:700; color:var(--accent); letter-spacing:.1em; text-decoration:none; }
+.back-btn {
+  padding:5px 14px; border:1.5px solid var(--border); background:var(--surface);
+  color:var(--text); border-radius:7px; cursor:pointer; font-family:'M PLUS 1p',sans-serif;
+  font-size:.8rem; text-decoration:none; transition:all .15s;
+}
+.back-btn:hover { border-color:var(--accent); color:var(--accent); }
+
+main { max-width:700px; margin:0 auto; padding:36px 16px; }
+
+.page-title {
+  font-family:'Rajdhani',sans-serif; font-size:1.4rem; font-weight:700;
+  color:var(--accent); letter-spacing:.08em; margin-bottom:28px;
+  padding-bottom:12px; border-bottom:2px solid var(--border);
+}
+
+.section { margin-bottom:32px; }
+.section-title {
+  font-size:.82rem; font-weight:700; color:var(--accent);
+  letter-spacing:.06em; margin-bottom:12px;
+  display:flex; align-items:center; gap:8px;
+}
+.section-title::before {
+  content:''; display:inline-block; width:4px; height:1em;
+  background:var(--accent); border-radius:2px;
+}
+.section-body {
+  background:var(--surface); border:1.5px solid var(--border);
+  border-radius:10px; padding:18px 20px; font-size:.85rem;
+  line-height:1.9; color:var(--text);
+}
+.section-body p + p { margin-top:10px; }
+.section-body a { color:var(--accent); text-decoration:none; }
+.section-body a:hover { text-decoration:underline; }
+
+.contact-link {
+  display:inline-flex; align-items:center; gap:8px;
+  background:var(--surface2); border:1.5px solid var(--border);
+  border-radius:8px; padding:10px 16px; text-decoration:none;
+  color:var(--text); font-size:.85rem; font-weight:500;
+  transition:all .15s; margin-top:8px;
+}
+.contact-link:hover { border-color:var(--accent); color:var(--accent); }
+.x-icon { font-size:1rem; }
+
+.warning-box {
+  background:#f0f4fb; border:1.5px solid var(--border);
+  border-left:4px solid var(--accent);
+  border-radius:8px; padding:14px 18px;
+  font-size:.82rem; line-height:1.8; color:var(--text-muted);
+  margin-top:12px;
+}
+
+footer {
+  text-align:center; padding:32px 16px;
+  font-size:.72rem; color:var(--text-muted);
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="logo">i7card manager</a>
+  <a href="index.html" class="back-btn">← カード一覧に戻る</a>
+</header>
+
+<main>
+  <div class="page-title">◆ このサイトについて</div>
+
+  <!-- 免責事項 -->
+  <div class="section">
+    <div class="section-title">免責事項</div>
+    <div class="section-body">
+      <p>このサイトは、アイドリッシュセブンのファンが個人で制作・運営している<strong>非公式のカード管理ツール</strong>です。</p>
+      <p>株式会社バンダイナムコオンラインおよび関連企業・団体とは一切関係ありません。</p>
+      <p>カード情報は手動で更新しているため、最新情報の反映が遅れる場合があります。正確な情報はゲーム公式サイトをご確認ください。</p>
+      <div class="warning-box">
+        ⚠ 情報の更新が遅かったり、誤りがある場合はXにてご連絡いただけると助かります！できる限り対応します。
+      </div>
+    </div>
+  </div>
+
+  <!-- 利用規約 -->
+  <div class="section">
+    <div class="section-title">利用規約</div>
+    <div class="section-body">
+      <p>本サイトはどなたでも自由にご利用いただけます。ただし以下の行為はご遠慮ください。</p>
+      <p>・本サイトのコンテンツを無断で転載・再配布すること<br>
+         ・本サイトを利用した商業目的の活動<br>
+         ・その他、運営者が不適切と判断する行為</p>
+      <p>本サイトの利用によって生じたいかなる損害についても、運営者は責任を負いかねます。</p>
+    </div>
+  </div>
+
+  <!-- 著作権 -->
+  <div class="section">
+    <div class="section-title">著作権について</div>
+    <div class="section-body">
+      <p>アイドリッシュセブンに関するすべての著作権は、株式会社バンダイナムコオンライン・種村有菜氏に帰属します。</p>
+      <p>本サイトはキャラクター画像等の著作物を使用しておらず、テキスト情報のみを掲載しています。</p>
+    </div>
+  </div>
+
+  <!-- プライバシー -->
+  <div class="section">
+    <div class="section-title">Googleログインについて</div>
+    <div class="section-body">
+      <p>所持データの同期のためにGoogleアカウントでのログインをお願いしています。</p>
+      <p><strong>取得する情報</strong></p>
+      <p>・お名前（ヘッダーへの表示用）<br>
+         ・GoogleユーザーID（所持データの紐付け用）</p>
+      <p><strong>取得しない情報</strong></p>
+      <p>・パスワード<br>
+         ・メールアドレス<br>
+         ・連絡先・カレンダー等のGoogleサービスの情報<br>
+         ・Googleドライブの中身</p>
+      <p><strong>データの保存場所</strong></p>
+      <p>所持ステータス・スキルレベルのデータは、運営者のGoogleスプレッドシートに保存されます。第三者への提供・公開は一切行いません。</p>
+      <div class="warning-box">
+        🔒 ログインは Google の認証システムを利用しており、パスワード等の機密情報がこのサイトに渡ることはありません。
+      </div>
+    </div>
+  </div>
+
+  <!-- お問い合わせ -->
+  <div class="section">
+    <div class="section-title">お問い合わせ</div>
+    <div class="section-body">
+      <p>カード情報の誤り・ご要望・その他お気軽にどうぞ！</p>
+      <a href="https://x.com/sy_yss2" target="_blank" class="contact-link">
+        <span class="x-icon">𝕏</span> @sy_yss2
+      </a>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  【非公式】i7card — アイドリッシュセブン i7card manager<br>
+  © 2026 sy_yss2 / © アイドリッシュセブン CD:Arina Tanemura / © BANDAI NAMCO Online Inc.
+</footer>
+
+</body>
+</html>
