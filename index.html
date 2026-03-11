@@ -125,6 +125,13 @@ select.filter-sel { cursor:pointer; }
 .badge-SSR{ background:#f5f3ff; color:var(--rSSR); border:1px solid #ddd6fe; }
 .badge-UR { background:#fffbeb; color:var(--rUR); border:1px solid #fde68a; }
 .awaken-hint { font-size:.65rem; color:var(--text-muted); margin-bottom:7px; }
+.filter-restore-bar {
+  display:none; background:var(--accent); color:#fff;
+  font-size:.75rem; padding:8px 16px; text-align:center;
+  cursor:pointer; position:sticky; top:60px; z-index:99;
+  box-shadow:0 2px 8px rgba(42,82,152,.2);
+}
+.filter-restore-bar:hover { background:#1e3a7a; }
 .awaken-link { cursor:pointer; text-decoration:underline dotted; transition:color .15s; }
 .awaken-link:hover { color:var(--accent); }
 
@@ -203,6 +210,7 @@ select.filter-sel { cursor:pointer; }
 
 <!-- メイン -->
 <main id="main-content" style="display:none">
+  <div class="filter-restore-bar" id="filter-restore-bar" onclick="restoreFilters()">← フィルターに戻る</div>
   <div class="progress-section">
     <div class="progress-title">◆ GALLERY PROGRESS</div>
     <div class="progress-stats" id="prog-stats"></div>
@@ -622,13 +630,30 @@ function updateProgress() {
     segs.map(s => `<div class="progress-seg" style="width:${counts[s.key]/total*100}%;background:${s.color}"></div>`).join('');
 }
 
+let savedFilters = null;
+
 function scrollToCard(id) {
-  // タブをリセットして全カード表示
+  // 現在のフィルター状態を保存
+  savedFilters = {
+    tab: activeTab,
+    rares: new Set(selectedRares),
+    charas: new Set(selectedCharas),
+    q: document.getElementById('q').value
+  };
+
+  // フィルター全リセット
   activeTab = '';
+  selectedRares.clear();
+  selectedCharas.clear();
+  document.getElementById('q').value = '';
   document.querySelectorAll('.stab').forEach(t => t.classList.remove('active'));
   document.querySelector('.stab[data-s=""]').classList.add('active');
+  document.querySelectorAll('#f-rare-tags .ftag, #f-chara-tags .ftag').forEach(t => t.classList.remove('on'));
   render();
-  // レンダリング後にスクロール
+
+  // 戻るバナー表示
+  document.getElementById('filter-restore-bar').style.display = 'block';
+
   setTimeout(() => {
     const el = document.querySelector(`[data-card-id="${id}"]`);
     if (el) {
@@ -636,7 +661,31 @@ function scrollToCard(id) {
       el.style.outline = '2px solid var(--accent)';
       setTimeout(() => el.style.outline = '', 1500);
     }
-  }, 100);
+  }, 200);
+}
+
+function restoreFilters() {
+  if (!savedFilters) return;
+  activeTab = savedFilters.tab;
+  selectedRares = new Set(savedFilters.rares);
+  selectedCharas = new Set(savedFilters.charas);
+  document.getElementById('q').value = savedFilters.q;
+
+  // タブUI復元
+  document.querySelectorAll('.stab').forEach(t => t.classList.remove('active'));
+  document.querySelector(`.stab[data-s="${activeTab}"]`).classList.add('active');
+
+  // タグUI復元
+  document.querySelectorAll('#f-rare-tags .ftag').forEach(t => {
+    t.classList.toggle('on', selectedRares.has(t.dataset.v));
+  });
+  document.querySelectorAll('#f-chara-tags .ftag').forEach(t => {
+    t.classList.toggle('on', selectedCharas.has(t.dataset.v));
+  });
+
+  savedFilters = null;
+  document.getElementById('filter-restore-bar').style.display = 'none';
+  render();
 }
 
 function initIcons() {
