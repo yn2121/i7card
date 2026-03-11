@@ -4,33 +4,34 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>i7card — 所持管理</title>
-<link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@400;500;700&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <style>
 :root {
-  --bg:#f7f4f0; --surface:#fff; --surface2:#f0ece6; --border:#ddd8d0;
-  --accent:#c9541e; --text:#2d2520; --text-muted:#8a7e76;
+  --bg:#eef2f7; --surface:#fff; --surface2:#e3eaf4; --border:#c5d3e8;
+  --accent:#2a5298; --text:#1a2744; --text-muted:#6b7fa8;
   --rN:#9ca3af; --rR:#059669; --rSR:#2563eb; --rSSR:#7c3aed; --rUR:#d97706;
   --s-list:#059669; --s-awake:#7c3aed; --s-bench:#d97706; --s-viewed:#2563eb; --s-unseen:#9ca3af;
 }
 * { margin:0; padding:0; box-sizing:border-box; }
-body { background:var(--bg); color:var(--text); font-family:'Klee One',serif; min-height:100vh; }
+body { background:var(--bg); color:var(--text); font-family:'M PLUS 1p',sans-serif; min-height:100vh; }
 
 header {
-  background:var(--surface); border-bottom:2px solid var(--accent);
+  background:var(--surface); border-bottom:2px solid var(--accent); box-shadow:0 2px 12px rgba(42,82,152,.10);
   padding:13px 22px; display:flex; align-items:center; justify-content:space-between;
   flex-wrap:wrap; gap:8px; position:sticky; top:0; z-index:100;
 }
 .logo { font-family:'Rajdhani',sans-serif; font-size:1.3rem; font-weight:700; color:var(--accent); letter-spacing:.1em; }
-.unofficial { font-size:.6rem; background:#fff3cd; color:#92400e; border:1px solid #fbbf24; border-radius:4px; padding:2px 7px; margin-left:6px; vertical-align:middle; }
+.unofficial { font-size:.6rem; background:#e8eef8; color:#2a5298; border:1px solid #c5d3e8; border-radius:4px; padding:2px 7px; margin-left:6px; vertical-align:middle; }
 .header-right { display:flex; gap:7px; align-items:center; flex-wrap:wrap; }
 .update-info { font-size:.7rem; color:var(--text-muted); }
-.user-badge { font-size:.72rem; background:var(--surface2); border:1px solid var(--border); border-radius:20px; padding:3px 10px; color:var(--text-muted); }
+.user-badge { font-size:.72rem; background:#dde6f5; border:1px solid var(--border); border-radius:20px; padding:3px 10px; color:var(--accent); font-weight:500; }
 
 main { max-width:1060px; margin:0 auto; padding:20px 16px; }
 
 .btn {
   padding:7px 14px; border:1.5px solid var(--border); background:var(--surface);
-  color:var(--text); border-radius:7px; cursor:pointer; font-family:'Klee One',serif;
+  color:var(--text); border-radius:7px; cursor:pointer; font-family:'M PLUS 1p',sans-serif;
   font-size:.8rem; transition:all .15s; white-space:nowrap;
 }
 .btn:hover { border-color:var(--accent); color:var(--accent); }
@@ -40,10 +41,10 @@ main { max-width:1060px; margin:0 auto; padding:20px 16px; }
 .btn-google {
   display:flex; align-items:center; gap:10px;
   padding:12px 24px; background:#fff; border:1.5px solid var(--border);
-  border-radius:8px; cursor:pointer; font-family:'Klee One',serif; font-size:.9rem;
+  border-radius:8px; cursor:pointer; font-family:'M PLUS 1p',sans-serif; font-size:.9rem;
   transition:all .18s; margin:0 auto;
 }
-.btn-google:hover { border-color:#4285f4; box-shadow:0 2px 8px rgba(66,133,244,.15); }
+.btn-google:hover { border-color:var(--accent); box-shadow:0 2px 8px rgba(42,82,152,.18); }
 .btn-google img { width:20px; height:20px; }
 
 /* ログイン画面 */
@@ -55,22 +56,23 @@ main { max-width:1060px; margin:0 auto; padding:20px 16px; }
 .login-screen .logo-big { font-family:'Rajdhani',sans-serif; font-size:2.2rem; font-weight:700; color:var(--accent); letter-spacing:.15em; margin-bottom:6px; }
 .login-screen p { font-size:.83rem; color:var(--text-muted); margin-bottom:28px; line-height:1.7; }
 .login-divider { font-size:.7rem; color:var(--text-muted); margin:16px 0; }
+.btn-guest { width:100%; justify-content:center; color:var(--text-muted); font-size:.82rem; }
 
 /* プログレス */
-.progress-section { background:var(--surface); border:1.5px solid var(--border); border-radius:12px; padding:16px 20px; margin-bottom:18px; }
+.progress-section { background:linear-gradient(135deg,#f0f4fb,#fff); border:1.5px solid var(--border); border-radius:12px; padding:16px 20px; margin-bottom:18px; }
 .progress-title { font-family:'Rajdhani',sans-serif; font-size:.75rem; letter-spacing:.1em; color:var(--text-muted); margin-bottom:10px; }
 .progress-stats { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px; align-items:center; }
 .p-chip { font-size:.75rem; display:flex; align-items:center; gap:4px; }
 .p-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
 .progress-bar { height:7px; background:var(--surface2); border-radius:4px; overflow:hidden; display:flex; }
 .progress-seg { height:100%; transition:width .4s ease; }
-.pct-text { font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--accent); margin-left:auto; }
+.pct-text { font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--accent); margin-left:auto; letter-spacing:.05em; }
 
 /* フィルター */
 .toolbar { display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; align-items:center; }
 input[type=text].search, select.filter-sel {
   padding:7px 12px; background:var(--surface); border:1.5px solid var(--border);
-  border-radius:7px; color:var(--text); font-family:'Klee One',serif; font-size:.82rem;
+  border-radius:7px; color:var(--text); font-family:'M PLUS 1p',sans-serif; font-size:.82rem;
   outline:none; transition:border-color .15s;
 }
 input[type=text].search { flex:1; min-width:160px; }
@@ -97,7 +99,7 @@ select.filter-sel { cursor:pointer; }
 }
 @keyframes fadeIn { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:translateY(0)} }
 .card::before { content:''; position:absolute; top:0;left:0;right:0;height:3px; background:var(--rc); }
-.card:hover { transform:translateY(-2px); box-shadow:0 5px 18px rgba(0,0,0,.09); }
+.card:hover { transform:translateY(-2px); box-shadow:0 5px 18px rgba(42,82,152,.13); }
 .card-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; }
 .card-name { font-size:.86rem; font-weight:600; line-height:1.3; }
 .card-chara { font-size:.68rem; color:var(--text-muted); margin-top:2px; }
@@ -110,10 +112,12 @@ select.filter-sel { cursor:pointer; }
 .badge-SSR{ background:#f5f3ff; color:var(--rSSR); border:1px solid #ddd6fe; }
 .badge-UR { background:#fffbeb; color:var(--rUR); border:1px solid #fde68a; }
 .awaken-hint { font-size:.65rem; color:var(--text-muted); margin-bottom:7px; }
+.awaken-link { cursor:pointer; text-decoration:underline dotted; transition:color .15s; }
+.awaken-link:hover { color:var(--accent); }
 
 .status-select {
   width:100%; padding:6px 26px 6px 9px; border-radius:6px; font-size:.74rem;
-  border:1.5px solid var(--border); font-family:'Klee One',serif; cursor:pointer;
+  border:1.5px solid var(--border); font-family:'M PLUS 1p',sans-serif; cursor:pointer;
   outline:none; transition:all .15s; appearance:none;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath fill='%238a7e76' d='M5 6L0 0h10z'/%3E%3C/svg%3E");
   background-repeat:no-repeat; background-position:right 8px center;
@@ -128,7 +132,7 @@ select.filter-sel { cursor:pointer; }
 .skill-lv-wrap { display:flex; align-items:center; justify-content:space-between; margin-top:7px; padding-top:7px; border-top:1px solid var(--border); }
 .skill-lv-label { font-size:.68rem; color:var(--text-muted); }
 .lv-stepper { display:flex; align-items:center; gap:4px; }
-.lv-btn { width:22px; height:22px; border-radius:5px; border:1.5px solid var(--border); background:var(--surface2); color:var(--text); cursor:pointer; font-size:.85rem; display:flex; align-items:center; justify-content:center; transition:all .15s; font-family:'Klee One',serif; padding:0; line-height:1; }
+.lv-btn { width:22px; height:22px; border-radius:5px; border:1.5px solid var(--border); background:var(--surface2); color:var(--text); cursor:pointer; font-size:.85rem; display:flex; align-items:center; justify-content:center; transition:all .15s; font-family:'M PLUS 1p',sans-serif; padding:0; line-height:1; }
 .lv-btn:hover { border-color:var(--accent); color:var(--accent); }
 .lv-btn:disabled { opacity:.3; cursor:default; }
 .lv-val { font-family:'Rajdhani',sans-serif; font-size:.9rem; font-weight:700; color:var(--accent); min-width:20px; text-align:center; }
@@ -162,8 +166,9 @@ select.filter-sel { cursor:pointer; }
     <span class="update-info" id="update-info"></span>
     <div class="save-indicator"><div class="save-dot" id="save-dot"></div><span id="save-text"></span></div>
     <span class="user-badge" id="user-badge" style="display:none"></span>
-    <button class="btn btn-sm" onclick="fetchCards(true)">🔄 カード更新</button>
-    <button class="btn btn-sm" id="logout-btn" style="display:none" onclick="logout()">ログアウト</button>
+    <button class="btn btn-sm" onclick="fetchCards(true)"><i data-lucide="refresh-cw" style="width:13px;height:13px;vertical-align:middle;margin-right:4px"></i>カード更新</button>
+    <button class="btn btn-sm btn-primary" id="login-btn" style="display:none" onclick="showLoginScreen()"><i data-lucide="log-in" style="width:13px;height:13px;vertical-align:middle;margin-right:4px"></i>ログイン</button>
+    <button class="btn btn-sm" id="logout-btn" style="display:none" onclick="logout()"><i data-lucide="log-out" style="width:13px;height:13px;vertical-align:middle;margin-right:4px"></i>ログアウト</button>
   </div>
 </header>
 
@@ -176,6 +181,8 @@ select.filter-sel { cursor:pointer; }
       <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
       Googleでログイン
     </button>
+    <div class="login-divider">または</div>
+    <button class="btn btn-guest" onclick="loginAsGuest()">ログインせずに見る</button>
   </div>
 </div>
 
@@ -198,11 +205,11 @@ select.filter-sel { cursor:pointer; }
   </div>
   <div class="status-tabs">
     <div class="stab active" data-s="" onclick="setTab(this)">すべて <span class="cnt-badge" id="cnt-all">0</span></div>
-    <div class="stab" data-s="list"   onclick="setTab(this)">🟢 一覧 <span class="cnt-badge" id="cnt-list">0</span></div>
-    <div class="stab" data-s="awake"  onclick="setTab(this)">🟣 覚醒/お別れ済 <span class="cnt-badge" id="cnt-awake">0</span></div>
-    <div class="stab" data-s="bench"  onclick="setTab(this)">🟡 控え室 <span class="cnt-badge" id="cnt-bench">0</span></div>
-    <div class="stab" data-s="viewed" onclick="setTab(this)">🔵 未所持閲覧済 <span class="cnt-badge" id="cnt-viewed">0</span></div>
-    <div class="stab" data-s="unseen" onclick="setTab(this)">⚪ 未所持未閲覧 <span class="cnt-badge" id="cnt-unseen">0</span></div>
+    <div class="stab" data-s="list"   onclick="setTab(this)">一覧 <span class="cnt-badge" id="cnt-list">0</span></div>
+    <div class="stab" data-s="awake"  onclick="setTab(this)">覚醒/お別れ済 <span class="cnt-badge" id="cnt-awake">0</span></div>
+    <div class="stab" data-s="bench"  onclick="setTab(this)">控え室 <span class="cnt-badge" id="cnt-bench">0</span></div>
+    <div class="stab" data-s="viewed" onclick="setTab(this)">未所持閲覧済 <span class="cnt-badge" id="cnt-viewed">0</span></div>
+    <div class="stab" data-s="unseen" onclick="setTab(this)">未所持未閲覧 <span class="cnt-badge" id="cnt-unseen">0</span></div>
   </div>
   <div id="card-grid" class="grid"></div>
 </main>
@@ -221,8 +228,8 @@ const USER_KEY    = 'i7card_user';
 
 const SKILL_MAX = { N:0, R:0, SR:3, SSR:4, UR:5 };
 const STATUS_LABELS = {
-  list:'🟢 一覧', awake:'🟣 覚醒/お別れ済', bench:'🟡 控え室',
-  viewed:'🔵 未所持閲覧済', unseen:'⚪ 未所持未閲覧',
+  list:'一覧', awake:'覚醒/お別れ済', bench:'控え室',
+  viewed:'未所持閲覧済', unseen:'未所持未閲覧',
 };
 const RARITY_COLORS = { N:'#9ca3af', R:'#059669', SR:'#2563eb', SSR:'#7c3aed', UR:'#d97706' };
 const COL = { id:'カードID', name:'カード名', chara:'名前', rarity:'レア', awaken:'覚醒先ID', note:'メモ' };
@@ -275,12 +282,32 @@ async function onLogin() {
   document.getElementById('user-badge').textContent = currentUser.name;
   document.getElementById('user-badge').style.display = '';
   document.getElementById('logout-btn').style.display = '';
+  document.getElementById('login-btn').style.display = 'none';
 
   // カードマスター読み込み
   await fetchCards(false);
   // 所持データ読み込み
   await loadMyData();
   render();
+}
+
+function loginAsGuest() {
+  currentUser = null;
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('main-content').style.display = '';
+  document.getElementById('user-badge').textContent = 'ゲスト';
+  document.getElementById('user-badge').style.display = '';
+  document.getElementById('login-btn').style.display = '';
+  document.getElementById('logout-btn').style.display = 'none';
+  myData = {};
+  fetchCards(false).then(() => render());
+}
+
+function showLoginScreen() {
+  document.getElementById('login-screen').style.display = '';
+  document.getElementById('main-content').style.display = 'none';
+  document.getElementById('user-badge').style.display = 'none';
+  document.getElementById('login-btn').style.display = 'none';
 }
 
 function logout() {
@@ -323,7 +350,7 @@ async function fetchCards(isUpdate = false) {
       `最終更新: ${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
 
     buildCharaFilter();
-    if (isUpdate) render();
+    render();
   } catch (err) {
     document.getElementById('card-grid').innerHTML =
       `<div class="empty"><div class="icon">⚠️</div><p>カード取得に失敗: ${err.message}</p></div>`;
@@ -379,14 +406,34 @@ function setSaveState(state) {
 // =====================================================
 // キャラフィルター
 // =====================================================
+const MAIN_CHARAS = [
+  '和泉一織','二階堂大和','和泉三月','四葉環','逢坂壮五','六弥ナギ',
+  '七瀬陸','八乙女楽','九条天','十龍之介','百','千亥清','悠',
+  '狗丸トウマ','棗巳波','御堂虎於'
+];
+
 function buildCharaFilter() {
-  const charas = [...new Set(masterCards.map(c => c.chara))].filter(Boolean).sort();
+  const allCharas = [...new Set(masterCards.map(c => c.chara))].filter(Boolean);
+  // 主要16人を先に、残りは五十音順
+  const main  = MAIN_CHARAS.filter(ch => allCharas.includes(ch));
+  const other = allCharas.filter(ch => !MAIN_CHARAS.includes(ch)).sort();
+  const sorted = [...main, ...other];
   const sel = document.getElementById('f-chara');
   sel.innerHTML = '<option value="">全キャラ</option>';
-  charas.forEach(ch => {
+  // 主要キャラとその他の間に区切りを入れる
+  main.forEach(ch => {
     const o = document.createElement('option');
     o.value = ch; o.textContent = ch; sel.appendChild(o);
   });
+  if (other.length) {
+    const sep = document.createElement('option');
+    sep.disabled = true; sep.textContent = '── その他 ──';
+    sel.appendChild(sep);
+    other.forEach(ch => {
+      const o = document.createElement('option');
+      o.value = ch; o.textContent = ch; sel.appendChild(o);
+    });
+  }
 }
 
 // =====================================================
@@ -420,7 +467,8 @@ function render() {
   const list = getFiltered();
   const grid = document.getElementById('card-grid');
   if (!list.length) {
-    grid.innerHTML = `<div class="empty"><div class="icon">🎴</div><p>カードが見つかりません</p></div>`;
+    initIcons();
+    grid.innerHTML = `<div class="empty"><i data-lucide="layout-grid" style="width:40px;height:40px;stroke:#c5d3e8;margin-bottom:10px"></i><p>カードが見つかりません</p></div>`;
     return;
   }
   grid.innerHTML = '';
@@ -433,6 +481,7 @@ function render() {
 
     const el = document.createElement('div');
     el.className = 'card';
+    el.dataset.cardId = c.id;
     el.style.cssText = `--rc:${rc}; animation-delay:${i*.018}s`;
     el.innerHTML = `
       <div class="card-top">
@@ -445,8 +494,8 @@ function render() {
           ${c.id ? `<span class="card-id">#${c.id}</span>` : ''}
         </div>
       </div>
-      ${awakenCard ? `<div class="awaken-hint">→ 覚醒: ${esc(awakenCard.name)}</div>` : ''}
-      <select class="status-select" data-v="${status}" onchange="changeStatus('${c.id}',this)">
+      ${awakenCard ? `<div class="awaken-hint awaken-link" onclick="scrollToCard('${awakenCard.id}')">→ 覚醒: ${esc(awakenCard.name)}</div>` : ''}
+      <select class="status-select" data-v="${status}" onchange="changeStatus('${c.id}',this)" ${!currentUser ? 'disabled title="ログインすると変更できます"' : ''}>
         ${Object.entries(STATUS_LABELS).map(([v,label]) =>
           `<option value="${v}" ${status===v?'selected':''}>${label}</option>`
         ).join('')}
@@ -454,15 +503,16 @@ function render() {
       ${max ? `<div class="skill-lv-wrap">
         <span class="skill-lv-label">スキルLv</span>
         <div class="lv-stepper">
-          <button class="lv-btn" onclick="changeLv('${c.id}',${max},-1,this)" ${lv<=0?'disabled':''}>−</button>
+          <button class="lv-btn" onclick="changeLv('${c.id}',${max},-1,this)" ${!currentUser || lv<=0?'disabled':''}>−</button>
           <span class="lv-val">${lv}</span>
-          <button class="lv-btn" onclick="changeLv('${c.id}',${max},1,this)" ${lv>=max?'disabled':''}>＋</button>
+          <button class="lv-btn" onclick="changeLv('${c.id}',${max},1,this)" ${!currentUser || lv>=max?'disabled':''}>＋</button>
           <span class="lv-max">/ ${max}</span>
         </div>
       </div>` : ''}
     `;
     grid.appendChild(el);
   });
+  initIcons();
 }
 
 // =====================================================
@@ -522,6 +572,27 @@ function updateProgress() {
     segs.map(s => `<div class="progress-seg" style="width:${counts[s.key]/total*100}%;background:${s.color}"></div>`).join('');
 }
 
+function scrollToCard(id) {
+  // タブをリセットして全カード表示
+  activeTab = '';
+  document.querySelectorAll('.stab').forEach(t => t.classList.remove('active'));
+  document.querySelector('.stab[data-s=""]').classList.add('active');
+  render();
+  // レンダリング後にスクロール
+  setTimeout(() => {
+    const el = document.querySelector(`[data-card-id="${id}"]`);
+    if (el) {
+      el.scrollIntoView({ behavior:'smooth', block:'center' });
+      el.style.outline = '2px solid var(--accent)';
+      setTimeout(() => el.style.outline = '', 1500);
+    }
+  }, 100);
+}
+
+function initIcons() {
+  if (window.lucide) lucide.createIcons();
+}
+
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 // =====================================================
@@ -533,6 +604,7 @@ window.addEventListener('load', async () => {
     currentUser = JSON.parse(saved);
     await onLogin();
   }
+  // ログイン済みでなくてもカードだけ先読み（ゲスト向け）
 });
 </script>
 </body>
