@@ -471,13 +471,7 @@ function buildCharaFilter() {
     units.forEach(ch => addTag(ch));
   }
 
-  // その他
-  const known = new Set([...MAIN_CHARAS, ...UNIT_CHARAS]);
-  const other = allCharas.filter(ch => !known.has(ch)).sort();
-  if (other.length) {
-    addSep('その他');
-    other.forEach(ch => addTag(ch));
-  }
+  // その他は表示しない
 }
 
 // =====================================================
