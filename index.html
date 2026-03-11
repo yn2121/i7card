@@ -226,7 +226,7 @@ select.filter-sel { cursor:pointer; }
 // =====================================================
 // 設定
 // =====================================================
-const GAS_URL     = 'https://script.google.com/macros/s/AKfycbyNyyISGhK3COhtH4oYyrOXDUOtCm6nMbeg8PwmoQDrj0_htZ3b0cIb5R3N9d7xFsXJ/exec';
+const GAS_URL     = 'https://script.google.com/macros/s/AKfycbxhMFNAPoix1KT9zKzUJ3ORJekHUflvFBu4ooQtuqo9MjvQdSPFSV96lpPZpDlyKUgj/exec';
 const MASTER_KEY  = 'i7card_master';
 const UPDATED_KEY = 'i7card_updatedat';
 const USER_KEY    = 'i7card_user';
@@ -392,7 +392,7 @@ function scheduleSave() {
     try {
       await fetch(GAS_URL, {
         method: 'POST',
-        body: JSON.stringify({ action:'save', user: currentUser.id, data: myData }),
+        body: JSON.stringify({ action:'save', user: currentUser.id, data: myData, origin: location.origin }),
       });
       setSaveState('saved');
     } catch {
