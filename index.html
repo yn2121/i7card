@@ -46,25 +46,6 @@ main { max-width:1060px; margin:0 auto; padding:20px 16px; }
 .btn-primary:hover { opacity:.85; color:#fff; }
 .btn-sm { padding:5px 11px; font-size:.73rem; }
 
-/* セットアップ画面 */
-.setup-screen {
-  max-width:520px; margin:60px auto; background:var(--surface);
-  border:1.5px solid var(--border); border-radius:14px; padding:36px;
-  text-align:center;
-}
-.setup-screen .logo-big { font-family:'Rajdhani',sans-serif; font-size:2.2rem; font-weight:700; color:var(--accent); letter-spacing:.15em; margin-bottom:6px; }
-.setup-screen p { font-size:.85rem; color:var(--text-muted); margin-bottom:24px; line-height:1.7; }
-.setup-input-wrap { display:flex; flex-direction:column; gap:10px; text-align:left; }
-label.setup-label { font-size:.78rem; color:var(--text-muted); display:flex; flex-direction:column; gap:5px; }
-input[type=text].setup-input {
-  padding:10px 14px; border:1.5px solid var(--border); border-radius:8px;
-  font-family:'Klee One',serif; font-size:.85rem; color:var(--text); outline:none;
-  transition:border-color .15s; width:100%;
-}
-input[type=text].setup-input:focus { border-color:var(--accent); }
-.setup-hint { font-size:.7rem; color:var(--text-muted); margin-top:3px; }
-.setup-actions { display:flex; gap:10px; justify-content:center; margin-top:20px; flex-wrap:wrap; }
-.setup-error { color:#dc2626; font-size:.78rem; margin-top:8px; }
 
 /* プログレス */
 .progress-section {
@@ -185,7 +166,7 @@ select.filter-sel { cursor:pointer; }
 </head>
 <body>
 
-<header id="main-header" style="display:none">
+<header id="main-header">
   <div>
     <span class="logo">i7card</span>
     <span class="unofficial">非公式ファンサイト</span>
@@ -199,29 +180,8 @@ select.filter-sel { cursor:pointer; }
   </div>
 </header>
 
-<!-- セットアップ画面 -->
-<div id="setup-screen">
-  <div class="setup-screen">
-    <div class="logo-big">i7card</div>
-    <p>初回設定が必要です。<br>GASのURLを入力してください。</p>
-    <div class="setup-input-wrap">
-      <label class="setup-label">
-        GAS Web App URL
-        <input type="text" class="setup-input" id="gas-url-input"
-          placeholder="https://script.google.com/macros/s/...">
-        <span class="setup-hint">手順書の「デプロイURL」をコピペしてください</span>
-      </label>
-      <div class="setup-error" id="setup-error"></div>
-    </div>
-    <div class="setup-actions">
-      <button class="btn btn-primary" onclick="setupAndLoad()">接続して始める</button>
-      <button class="btn btn-sm" onclick="tryResume()">前回のデータで続ける</button>
-    </div>
-  </div>
-</div>
-
 <!-- メイン -->
-<main id="main-content" style="display:none">
+<main id="main-content">
   <div class="progress-section">
     <div class="progress-title">◆ GALLERY PROGRESS</div>
     <div class="progress-stats" id="prog-stats"></div>
@@ -255,7 +215,7 @@ select.filter-sel { cursor:pointer; }
 // =====================================================
 // 定数・設定
 // =====================================================
-const GAS_URL_KEY  = 'i7card_gasurl';
+const GAS_URL      = 'https://script.google.com/macros/s/AKfycbyuvmwmpji5CksgblVTYOz9RDQtuf3-MrHvZc6EPC8UMlDO4OT3yh07dHqU4TSLpovU/exec';
 const MASTER_KEY   = 'i7card_master';
 const MY_KEY       = 'i7card_mydata';
 const UPDATED_KEY  = 'i7card_updatedat';
@@ -291,47 +251,18 @@ let activeTab = '';
 // =====================================================
 // セットアップ
 // =====================================================
-async function setupAndLoad() {
-  const url = document.getElementById('gas-url-input').value.trim();
-  const errEl = document.getElementById('setup-error');
-  errEl.textContent = '';
-
-  if (!url.startsWith('https://script.google.com')) {
-    errEl.textContent = 'URLの形式が正しくありません';
-    return;
-  }
-
-  localStorage.setItem(GAS_URL_KEY, url);
-  await fetchCards(false);
-}
-
-async function tryResume() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(MASTER_KEY) || 'null');
-    if (!saved || !saved.length) {
-      document.getElementById('setup-error').textContent = '保存されたデータがありません。URLを入力してください';
-      return;
-    }
-    masterCards = saved;
-    myData = JSON.parse(localStorage.getItem(MY_KEY) || '{}');
-    showApp();
-  } catch {
-    document.getElementById('setup-error').textContent = 'データの読み込みに失敗しました';
-  }
-}
-
 // =====================================================
 // GASからカード取得
 // =====================================================
 async function fetchCards(isUpdate = false) {
-  const url = localStorage.getItem(GAS_URL_KEY);
+  const url = GAS_URL;
   if (!url) return;
 
   const grid = document.getElementById('card-grid');
   if (isUpdate) {
     grid.innerHTML = `<div class="loading"><div class="spinner"></div>カードデータを更新中...</div>`;
   } else {
-    document.getElementById('setup-screen').innerHTML =
+    document.getElementById('main-content').innerHTML =
       `<div class="loading" style="margin-top:80px"><div class="spinner"></div>データを読み込み中...</div>`;
   }
 
@@ -362,10 +293,7 @@ async function fetchCards(isUpdate = false) {
     if (isUpdate) {
       grid.innerHTML = `<div class="empty"><div class="icon">⚠️</div><p>更新に失敗しました: ${err.message}</p></div>`;
     } else {
-      document.getElementById('setup-error').textContent =
-        `接続に失敗しました: ${err.message}`;
-      // セットアップ画面を再表示
-      location.reload();
+      document.getElementById('card-grid').innerHTML = `<div class='empty'><div class='icon'>⚠️</div><p>データの取得に失敗しました: ${err.message}</p></div>`;
     }
   }
 }
@@ -374,7 +302,6 @@ async function fetchCards(isUpdate = false) {
 // アプリ表示
 // =====================================================
 function showApp() {
-  document.getElementById('setup-screen').style.display = 'none';
   document.getElementById('main-header').style.display = '';
   document.getElementById('main-content').style.display = '';
 
@@ -607,17 +534,7 @@ function esc(s) {
 // =====================================================
 // 起動
 // =====================================================
-window.addEventListener('load', () => {
-  const savedUrl = localStorage.getItem(GAS_URL_KEY);
-  if (savedUrl) {
-    document.getElementById('gas-url-input').value = savedUrl;
-    // キャッシュがあればそちらで先に表示
-    const cached = localStorage.getItem(MASTER_KEY);
-    if (cached) {
-      tryResume();
-    }
-  }
-});
+window.addEventListener('load', () => { fetchCards(false); });
 </script>
 </body>
 </html>
