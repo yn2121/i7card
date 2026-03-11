@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>i7card — 所持管理</title>
+<title>【非公式】i7card managerサイト</title>
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@400;500;700&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <style>
@@ -22,7 +22,7 @@ header {
   flex-wrap:wrap; gap:8px; position:sticky; top:0; z-index:100;
 }
 .logo { font-family:'Rajdhani',sans-serif; font-size:1.3rem; font-weight:700; color:var(--accent); letter-spacing:.1em; }
-.unofficial { font-size:.6rem; background:#e8eef8; color:#2a5298; border:1px solid #c5d3e8; border-radius:4px; padding:2px 7px; margin-left:6px; vertical-align:middle; }
+.unofficial { font-size:1rem; background:#e8eef8; color:#2a5298; border:1px solid #c5d3e8; border-radius:4px; padding:3px 10px; margin-left:8px; vertical-align:middle; font-weight:500; }
 .header-right { display:flex; gap:7px; align-items:center; flex-wrap:wrap; }
 .update-info { font-size:.7rem; color:var(--text-muted); }
 .user-badge { font-size:.72rem; background:#dde6f5; border:1px solid var(--border); border-radius:20px; padding:3px 10px; color:var(--accent); font-weight:500; }
@@ -56,6 +56,9 @@ main { max-width:1060px; margin:0 auto; padding:20px 16px; }
 .login-screen .logo-big { font-family:'Rajdhani',sans-serif; font-size:2.2rem; font-weight:700; color:var(--accent); letter-spacing:.15em; margin-bottom:6px; }
 .login-screen p { font-size:.83rem; color:var(--text-muted); margin-bottom:28px; line-height:1.7; }
 .login-divider { font-size:.7rem; color:var(--text-muted); margin:16px 0; }
+.privacy-note { font-size:.72rem; color:var(--text-muted); line-height:1.7; background:#f0f4fb; border:1px solid var(--border); border-radius:8px; padding:10px 14px; margin-bottom:16px; text-align:left; }
+.privacy-note a { color:var(--accent); text-decoration:none; }
+.privacy-note a:hover { text-decoration:underline; }
 .btn-guest { width:100%; justify-content:center; color:var(--text-muted); font-size:.82rem; }
 
 /* プログレス */
@@ -159,14 +162,15 @@ select.filter-sel { cursor:pointer; }
 
 <header>
   <div>
-    <span class="logo">i7card</span>
-    <span class="unofficial">非公式ファンサイト</span>
+    <span class="logo">i7card manager</span>
+    <span class="unofficial">非公式カード管理サイト</span>
   </div>
   <div class="header-right">
     <span class="update-info" id="update-info"></span>
     <div class="save-indicator"><div class="save-dot" id="save-dot"></div><span id="save-text"></span></div>
     <span class="user-badge" id="user-badge" style="display:none"></span>
     <button class="btn btn-sm" onclick="fetchCards(true)"><i data-lucide="refresh-cw" style="width:13px;height:13px;vertical-align:middle;margin-right:4px"></i>カード更新</button>
+    <a href="about.html" class="btn btn-sm" target="_blank">このサイトについて</a>
     <button class="btn btn-sm btn-primary" id="login-btn" style="display:none" onclick="showLoginScreen()"><i data-lucide="log-in" style="width:13px;height:13px;vertical-align:middle;margin-right:4px"></i>ログイン</button>
     <button class="btn btn-sm" id="logout-btn" style="display:none" onclick="logout()"><i data-lucide="log-out" style="width:13px;height:13px;vertical-align:middle;margin-right:4px"></i>ログアウト</button>
   </div>
@@ -175,8 +179,9 @@ select.filter-sel { cursor:pointer; }
 <!-- ログイン画面 -->
 <div id="login-screen">
   <div class="login-screen">
-    <div class="logo-big">i7card</div>
+    <div class="logo-big">i7card manager</div>
     <p>Googleアカウントでログインすると<br>どの端末からでも所持データが同期されます</p>
+    <div class="privacy-note">ログインで取得するのは<strong>お名前とユーザーID</strong>のみです。<br>パスワード・メール・ドライブ等は一切取得しません。<br><a href="about.html" target="_blank">詳しくはこちら →</a></div>
     <button class="btn-google" onclick="loginWithGoogle()">
       <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
       Googleでログイン
@@ -204,8 +209,8 @@ select.filter-sel { cursor:pointer; }
     </select>
   </div>
   <div class="status-tabs">
-    <div class="stab active" data-s="" onclick="setTab(this)">すべて <span class="cnt-badge" id="cnt-all">0</span></div>
-    <div class="stab" data-s="list"   onclick="setTab(this)">一覧 <span class="cnt-badge" id="cnt-list">0</span></div>
+    <div class="stab" data-s="" onclick="setTab(this)">すべて <span class="cnt-badge" id="cnt-all">0</span></div>
+    <div class="stab active" data-s="list" onclick="setTab(this)">一覧 <span class="cnt-badge" id="cnt-list">0</span></div>
     <div class="stab" data-s="awake"  onclick="setTab(this)">覚醒/お別れ済 <span class="cnt-badge" id="cnt-awake">0</span></div>
     <div class="stab" data-s="bench"  onclick="setTab(this)">控え室 <span class="cnt-badge" id="cnt-bench">0</span></div>
     <div class="stab" data-s="viewed" onclick="setTab(this)">未所持閲覧済 <span class="cnt-badge" id="cnt-viewed">0</span></div>
@@ -239,7 +244,7 @@ const COL = { id:'カードID', name:'カード名', chara:'名前', rarity:'レ
 // =====================================================
 let masterCards = [];
 let myData      = {};
-let activeTab   = '';
+let activeTab   = 'list';
 let currentUser = null;  // { id, name, email }
 let saveTimer   = null;
 
@@ -582,7 +587,7 @@ function updateProgress() {
   ];
   document.getElementById('prog-stats').innerHTML =
     segs.map(s => `<div class="p-chip"><div class="p-dot" style="background:${s.color}"></div>${s.label} <strong>${counts[s.key]}</strong></div>`).join('') +
-    `<div class="pct-text">${pct}% 埋まり</div>`;
+    `<div class="pct-text">${pct}%</div>`;
   document.getElementById('prog-bar').innerHTML =
     segs.map(s => `<div class="progress-seg" style="width:${counts[s.key]/total*100}%;background:${s.color}"></div>`).join('');
 }
