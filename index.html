@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>i7card — 所持管理</title>
+<link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f7f4f0;
+  --surface: #ffffff;
+  --surface2: #f0ece6;
+  --border: #ddd8d0;
+  --accent: #c9541e;
+  --accent-light: #fdf0e8;
+  --text: #2d2520;
+  --text-muted: #8a7e76;
+  --rN: #9ca3af; --rR: #059669; --rSR: #2563eb; --rSSR: #7c3aed; --rUR: #d97706;
+  --s-list: #059669; --s-awake: #7c3aed; --s-bench: #d97706;
+  --s-viewed: #2563eb; --s-unseen: #9ca3af;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'Klee One',serif; min-height:100vh; }
+
+/* ヘッダー */
+header {
+  background:var(--surface); border-bottom:2px solid var(--accent);
+  padding:13px 22px; display:flex; align-items:center; justify-content:space-between;
+  flex-wrap:wrap; gap:8px; position:sticky; top:0; z-index:100;
+}
+.logo { font-family:'Rajdhani',sans-serif; font-size:1.3rem; font-weight:700; color:var(--accent); letter-spacing:.1em; }
+.unofficial { font-size:.6rem; background:#fff3cd; color:#92400e; border:1px solid #fbbf24; border-radius:4px; padding:2px 7px; margin-left:6px; vertical-align:middle; }
+.header-right { display:flex; gap:7px; align-items:center; flex-wrap:wrap; }
+.update-info { font-size:.7rem; color:var(--text-muted); }
+
+main { max-width:1060px; margin:0 auto; padding:20px 16px; }
+
+/* ボタン */
+.btn {
+  padding:7px 14px; border:1.5px solid var(--border); background:var(--surface);
+  color:var(--text); border-radius:7px; cursor:pointer; font-family:'Klee One',serif;
+  font-size:.8rem; transition:all .15s; white-space:nowrap;
+}
+.btn:hover { border-color:var(--accent); color:var(--accent); }
+.btn-primary { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
+.btn-primary:hover { opacity:.85; color:#fff; }
+.btn-sm { padding:5px 11px; font-size:.73rem; }
+
+/* セットアップ画面 */
+.setup-screen {
+  max-width:520px; margin:60px auto; background:var(--surface);
+  border:1.5px solid var(--border); border-radius:14px; padding:36px;
+  text-align:center;
+}
+.setup-screen .logo-big { font-family:'Rajdhani',sans-serif; font-size:2.2rem; font-weight:700; color:var(--accent); letter-spacing:.15em; margin-bottom:6px; }
+.setup-screen p { font-size:.85rem; color:var(--text-muted); margin-bottom:24px; line-height:1.7; }
+.setup-input-wrap { display:flex; flex-direction:column; gap:10px; text-align:left; }
+label.setup-label { font-size:.78rem; color:var(--text-muted); display:flex; flex-direction:column; gap:5px; }
+input[type=text].setup-input {
+  padding:10px 14px; border:1.5px solid var(--border); border-radius:8px;
+  font-family:'Klee One',serif; font-size:.85rem; color:var(--text); outline:none;
+  transition:border-color .15s; width:100%;
+}
+input[type=text].setup-input:focus { border-color:var(--accent); }
+.setup-hint { font-size:.7rem; color:var(--text-muted); margin-top:3px; }
+.setup-actions { display:flex; gap:10px; justify-content:center; margin-top:20px; flex-wrap:wrap; }
+.setup-error { color:#dc2626; font-size:.78rem; margin-top:8px; }
+
+/* プログレス */
+.progress-section {
+  background:var(--surface); border:1.5px solid var(--border); border-radius:12px;
+  padding:16px 20px; margin-bottom:18px;
+}
+.progress-title { font-family:'Rajdhani',sans-serif; font-size:.75rem; letter-spacing:.1em; color:var(--text-muted); margin-bottom:10px; }
+.progress-stats { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px; align-items:center; }
+.p-chip { font-size:.75rem; display:flex; align-items:center; gap:4px; }
+.p-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+.progress-bar { height:7px; background:var(--surface2); border-radius:4px; overflow:hidden; display:flex; }
+.progress-seg { height:100%; transition:width .4s ease; }
+.pct-text { font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--accent); margin-left:auto; }
+
+/* フィルター */
+.toolbar { display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; align-items:center; }
+input[type=text].search, select.filter-sel {
+  padding:7px 12px; background:var(--surface); border:1.5px solid var(--border);
+  border-radius:7px; color:var(--text); font-family:'Klee One',serif; font-size:.82rem;
+  outline:none; transition:border-color .15s;
+}
+input[type=text].search { flex:1; min-width:160px; }
+input[type=text].search:focus, select.filter-sel:focus { border-color:var(--accent); }
+select.filter-sel { cursor:pointer; }
+
+/* タブ */
+.status-tabs { display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap; }
+.stab {
+  padding:5px 13px; border-radius:20px; font-size:.73rem; cursor:pointer;
+  border:1.5px solid var(--border); color:var(--text-muted); transition:all .15s; user-select:none;
+}
+.stab.active { color:#fff; font-weight:600; }
+.stab[data-s=""].active        { background:#2d2520; border-color:#2d2520; color:#fff; }
+.stab[data-s="list"].active    { background:var(--s-list);   border-color:var(--s-list); }
+.stab[data-s="awake"].active   { background:var(--s-awake);  border-color:var(--s-awake); }
+.stab[data-s="bench"].active   { background:var(--s-bench);  border-color:var(--s-bench); }
+.stab[data-s="viewed"].active  { background:var(--s-viewed); border-color:var(--s-viewed); }
+.stab[data-s="unseen"].active  { background:var(--s-unseen); border-color:var(--s-unseen); }
+.cnt-badge { background:rgba(0,0,0,.1); border-radius:10px; padding:0 5px; font-size:.65rem; font-family:'Rajdhani',sans-serif; }
+
+/* グリッド */
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(195px,1fr)); gap:11px; }
+.card {
+  background:var(--surface); border:1.5px solid var(--border); border-radius:10px;
+  padding:12px; transition:all .18s; position:relative; overflow:hidden;
+  animation:fadeIn .22s ease both;
+}
+@keyframes fadeIn { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:translateY(0)} }
+.card::before { content:''; position:absolute; top:0;left:0;right:0;height:3px; background:var(--rc); }
+.card:hover { transform:translateY(-2px); box-shadow:0 5px 18px rgba(0,0,0,.09); }
+
+.card-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; }
+.card-name { font-size:.86rem; font-weight:600; line-height:1.3; }
+.card-chara { font-size:.68rem; color:var(--text-muted); margin-top:2px; }
+.card-meta { display:flex; flex-direction:column; align-items:flex-end; gap:3px; }
+.card-id { font-family:'Rajdhani',sans-serif; font-size:.68rem; color:var(--text-muted); }
+
+.badge-rare {
+  display:inline-block; padding:1px 7px; border-radius:4px;
+  font-family:'Rajdhani',sans-serif; font-weight:700; font-size:.67rem; letter-spacing:.04em;
+}
+.badge-N  { background:#f3f4f6; color:var(--rN); border:1px solid #d1d5db; }
+.badge-R  { background:#ecfdf5; color:var(--rR); border:1px solid #a7f3d0; }
+.badge-SR { background:#eff6ff; color:var(--rSR); border:1px solid #bfdbfe; }
+.badge-SSR{ background:#f5f3ff; color:var(--rSSR); border:1px solid #ddd6fe; }
+.badge-UR { background:#fffbeb; color:var(--rUR); border:1px solid #fde68a; }
+
+.awaken-hint { font-size:.65rem; color:var(--text-muted); margin-bottom:7px; }
+
+.status-select {
+  width:100%; padding:6px 26px 6px 9px; border-radius:6px; font-size:.74rem;
+  border:1.5px solid var(--border); font-family:'Klee One',serif; cursor:pointer;
+  outline:none; transition:all .15s; appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath fill='%238a7e76' d='M5 6L0 0h10z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 8px center;
+}
+.status-select[data-v="list"]   { background-color:#ecfdf5; border-color:#a7f3d0; color:#065f46; }
+.status-select[data-v="awake"]  { background-color:#f5f3ff; border-color:#ddd6fe; color:#5b21b6; }
+.status-select[data-v="bench"]  { background-color:#fffbeb; border-color:#fde68a; color:#92400e; }
+.status-select[data-v="viewed"] { background-color:#eff6ff; border-color:#bfdbfe; color:#1e40af; }
+.status-select[data-v="unseen"] { background-color:#f9fafb; border-color:#e5e7eb; color:#6b7280; }
+
+
+/* スキルLv */
+.skill-lv-wrap {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-top:7px; padding-top:7px; border-top:1px solid var(--border);
+}
+.skill-lv-label { font-size:.68rem; color:var(--text-muted); }
+.lv-stepper { display:flex; align-items:center; gap:4px; }
+.lv-btn {
+  width:22px; height:22px; border-radius:5px; border:1.5px solid var(--border);
+  background:var(--surface2); color:var(--text); cursor:pointer; font-size:.85rem;
+  display:flex; align-items:center; justify-content:center; transition:all .15s;
+  font-family:'Klee One',serif; padding:0; line-height:1;
+}
+.lv-btn:hover { border-color:var(--accent); color:var(--accent); }
+.lv-btn:disabled { opacity:.3; cursor:default; }
+.lv-val { font-family:'Rajdhani',sans-serif; font-size:.9rem; font-weight:700; color:var(--accent); min-width:20px; text-align:center; }
+.lv-max { font-size:.65rem; color:var(--text-muted); }
+
+.empty { grid-column:1/-1; text-align:center; padding:48px 20px; color:var(--text-muted); }
+.empty .icon { font-size:2.4rem; margin-bottom:10px; }
+
+/* ローディング */
+.loading { text-align:center; padding:60px 20px; color:var(--text-muted); }
+.spinner {
+  width:36px; height:36px; border:3px solid var(--border);
+  border-top-color:var(--accent); border-radius:50%;
+  animation:spin .8s linear infinite; margin:0 auto 16px;
+}
+@keyframes spin { to{transform:rotate(360deg)} }
+
+::-webkit-scrollbar { width:6px; }
+::-webkit-scrollbar-track { background:var(--bg); }
+::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+</style>
+</head>
+<body>
+
+<header id="main-header" style="display:none">
+  <div>
+    <span class="logo">i7card</span>
+    <span class="unofficial">非公式ファンサイト</span>
+  </div>
+  <div class="header-right">
+    <span class="update-info" id="update-info"></span>
+    <button class="btn btn-sm" onclick="fetchCards(true)">🔄 カード更新</button>
+    <button class="btn btn-sm" onclick="exportMyData()">💾 自分のデータ保存</button>
+    <button class="btn btn-sm" onclick="document.getElementById('my-input').click()">📂 データ読込</button>
+    <input type="file" id="my-input" accept=".json" style="display:none" onchange="importMyData(event)">
+  </div>
+</header>
+
+<!-- セットアップ画面 -->
+<div id="setup-screen">
+  <div class="setup-screen">
+    <div class="logo-big">i7card</div>
+    <p>初回設定が必要です。<br>GASのURLを入力してください。</p>
+    <div class="setup-input-wrap">
+      <label class="setup-label">
+        GAS Web App URL
+        <input type="text" class="setup-input" id="gas-url-input"
+          placeholder="https://script.google.com/macros/s/...">
+        <span class="setup-hint">手順書の「デプロイURL」をコピペしてください</span>
+      </label>
+      <div class="setup-error" id="setup-error"></div>
+    </div>
+    <div class="setup-actions">
+      <button class="btn btn-primary" onclick="setupAndLoad()">接続して始める</button>
+      <button class="btn btn-sm" onclick="tryResume()">前回のデータで続ける</button>
+    </div>
+  </div>
+</div>
+
+<!-- メイン -->
+<main id="main-content" style="display:none">
+  <div class="progress-section">
+    <div class="progress-title">◆ GALLERY PROGRESS</div>
+    <div class="progress-stats" id="prog-stats"></div>
+    <div class="progress-bar" id="prog-bar"></div>
+  </div>
+
+  <div class="toolbar">
+    <input type="text" class="search" id="q" placeholder="カード名・キャラ名で検索..." oninput="render()">
+    <select class="filter-sel" id="f-rare" onchange="render()">
+      <option value="">全レア</option>
+      <option>N</option><option>R</option><option>SR</option><option>SSR</option><option>UR</option>
+    </select>
+    <select class="filter-sel" id="f-chara" onchange="render()">
+      <option value="">全キャラ</option>
+    </select>
+  </div>
+
+  <div class="status-tabs">
+    <div class="stab active" data-s="" onclick="setTab(this)">すべて <span class="cnt-badge" id="cnt-all">0</span></div>
+    <div class="stab" data-s="list"   onclick="setTab(this)">🟢 一覧 <span class="cnt-badge" id="cnt-list">0</span></div>
+    <div class="stab" data-s="awake"  onclick="setTab(this)">🟣 覚醒/お別れ済 <span class="cnt-badge" id="cnt-awake">0</span></div>
+    <div class="stab" data-s="bench"  onclick="setTab(this)">🟡 控え室 <span class="cnt-badge" id="cnt-bench">0</span></div>
+    <div class="stab" data-s="viewed" onclick="setTab(this)">🔵 未所持閲覧済 <span class="cnt-badge" id="cnt-viewed">0</span></div>
+    <div class="stab" data-s="unseen" onclick="setTab(this)">⚪ 未所持未閲覧 <span class="cnt-badge" id="cnt-unseen">0</span></div>
+  </div>
+
+  <div id="card-grid" class="grid"></div>
+</main>
+
+<script>
+// =====================================================
+// 定数・設定
+// =====================================================
+const GAS_URL_KEY  = 'i7card_gasurl';
+const MASTER_KEY   = 'i7card_master';
+const MY_KEY       = 'i7card_mydata';
+const UPDATED_KEY  = 'i7card_updatedat';
+
+const SKILL_MAX = { N:0, R:0, SR:3, SSR:4, UR:5 };
+
+const STATUS_LABELS = {
+  list:   '🟢 一覧',
+  awake:  '🟣 覚醒/お別れ済',
+  bench:  '🟡 控え室',
+  viewed: '🔵 未所持閲覧済',
+  unseen: '⚪ 未所持未閲覧',
+};
+const RARITY_COLORS = { N:'#9ca3af', R:'#059669', SR:'#2563eb', SSR:'#7c3aed', UR:'#d97706' };
+
+// スプシのヘッダー列名（スプレッドシートの1行目と合わせてください）
+const COL = {
+  id:      'カードID',
+  name:    'カード名',
+  chara:   '名前',        // キャラ名列
+  rarity:  'レア',
+  awaken:  '覚醒先ID',   // 任意列（なければ空でOK）
+  note:    'メモ',        // 任意列
+};
+
+// =====================================================
+// 状態
+// =====================================================
+let masterCards = [];
+let myData = {};
+let activeTab = '';
+
+// =====================================================
+// セットアップ
+// =====================================================
+async function setupAndLoad() {
+  const url = document.getElementById('gas-url-input').value.trim();
+  const errEl = document.getElementById('setup-error');
+  errEl.textContent = '';
+
+  if (!url.startsWith('https://script.google.com')) {
+    errEl.textContent = 'URLの形式が正しくありません';
+    return;
+  }
+
+  localStorage.setItem(GAS_URL_KEY, url);
+  await fetchCards(false);
+}
+
+async function tryResume() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(MASTER_KEY) || 'null');
+    if (!saved || !saved.length) {
+      document.getElementById('setup-error').textContent = '保存されたデータがありません。URLを入力してください';
+      return;
+    }
+    masterCards = saved;
+    myData = JSON.parse(localStorage.getItem(MY_KEY) || '{}');
+    showApp();
+  } catch {
+    document.getElementById('setup-error').textContent = 'データの読み込みに失敗しました';
+  }
+}
+
+// =====================================================
+// GASからカード取得
+// =====================================================
+async function fetchCards(isUpdate = false) {
+  const url = localStorage.getItem(GAS_URL_KEY);
+  if (!url) return;
+
+  const grid = document.getElementById('card-grid');
+  if (isUpdate) {
+    grid.innerHTML = `<div class="loading"><div class="spinner"></div>カードデータを更新中...</div>`;
+  } else {
+    document.getElementById('setup-screen').innerHTML =
+      `<div class="loading" style="margin-top:80px"><div class="spinner"></div>データを読み込み中...</div>`;
+  }
+
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    if (data.error) throw new Error(data.error);
+
+    // スプシの列名→内部形式に変換
+    masterCards = (data.cards || []).map(row => ({
+      id:      String(row[COL.id] || ''),
+      name:    String(row[COL.name] || ''),
+      chara:   String(row[COL.chara] || ''),
+      rarity:  String(row[COL.rarity] || 'N'),
+      awakenId:String(row[COL.awaken] || ''),
+      note:    String(row[COL.note] || ''),
+    })).filter(c => c.name);
+
+    localStorage.setItem(MASTER_KEY, JSON.stringify(masterCards));
+    localStorage.setItem(UPDATED_KEY, data.updatedAt || new Date().toISOString());
+
+    myData = JSON.parse(localStorage.getItem(MY_KEY) || '{}');
+    showApp();
+
+  } catch (err) {
+    if (isUpdate) {
+      grid.innerHTML = `<div class="empty"><div class="icon">⚠️</div><p>更新に失敗しました: ${err.message}</p></div>`;
+    } else {
+      document.getElementById('setup-error').textContent =
+        `接続に失敗しました: ${err.message}`;
+      // セットアップ画面を再表示
+      location.reload();
+    }
+  }
+}
+
+// =====================================================
+// アプリ表示
+// =====================================================
+function showApp() {
+  document.getElementById('setup-screen').style.display = 'none';
+  document.getElementById('main-header').style.display = '';
+  document.getElementById('main-content').style.display = '';
+
+  const updatedAt = localStorage.getItem(UPDATED_KEY);
+  if (updatedAt) {
+    const d = new Date(updatedAt);
+    document.getElementById('update-info').textContent =
+      `最終更新: ${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
+  }
+
+  buildCharaFilter();
+  render();
+}
+
+// =====================================================
+// キャラフィルター
+// =====================================================
+function buildCharaFilter() {
+  const charas = [...new Set(masterCards.map(c => c.chara))].filter(Boolean).sort();
+  const sel = document.getElementById('f-chara');
+  sel.innerHTML = '<option value="">全キャラ</option>';
+  charas.forEach(ch => {
+    const o = document.createElement('option');
+    o.value = ch; o.textContent = ch;
+    sel.appendChild(o);
+  });
+}
+
+// =====================================================
+// フィルター・タブ
+// =====================================================
+function getFiltered() {
+  const q  = document.getElementById('q').value.toLowerCase();
+  const r  = document.getElementById('f-rare').value;
+  const ch = document.getElementById('f-chara').value;
+  return masterCards.filter(c => {
+    if (activeTab && (myData[c.id] || 'unseen') !== activeTab) return false;
+    if (q && !c.name.toLowerCase().includes(q) && !c.chara.toLowerCase().includes(q)) return false;
+    if (r && c.rarity !== r) return false;
+    if (ch && c.chara !== ch) return false;
+    return true;
+  }).sort((a, b) => Number(a.id) - Number(b.id));
+}
+
+function setTab(el) {
+  activeTab = el.dataset.s;
+  document.querySelectorAll('.stab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  render();
+}
+
+// =====================================================
+// 描画
+// =====================================================
+function render() {
+  updateCounts();
+  updateProgress();
+
+  const list = getFiltered();
+  const grid = document.getElementById('card-grid');
+
+  if (!list.length) {
+    grid.innerHTML = `<div class="empty"><div class="icon">🎴</div><p>カードが見つかりません</p></div>`;
+    return;
+  }
+
+  grid.innerHTML = '';
+  list.forEach((c, i) => {
+    const status = myData[c.id] || 'unseen';
+    const rc = RARITY_COLORS[c.rarity] || '#9ca3af';
+
+    // 覚醒先
+    const awakenCard = c.awakenId
+      ? masterCards.find(x => x.id === c.awakenId)
+      : null;
+
+    const el = document.createElement('div');
+    el.className = 'card';
+    el.style.cssText = `--rc:${rc}; animation-delay:${i * .018}s`;
+
+    el.innerHTML = `
+      <div class="card-top">
+        <div>
+          <div class="card-name">${esc(c.name)}</div>
+          <div class="card-chara">${esc(c.chara)}</div>
+        </div>
+        <div class="card-meta">
+          <span class="badge-rare badge-${c.rarity}">${c.rarity}</span>
+          ${c.id ? `<span class="card-id">#${c.id}</span>` : ''}
+        </div>
+      </div>
+      ${awakenCard ? `<div class="awaken-hint">→ 覚醒: ${esc(awakenCard.name)}</div>` : ''}
+      <select class="status-select" data-v="${status}"
+        onchange="changeStatus('${c.id}', this)">
+        ${Object.entries(STATUS_LABELS).map(([v, label]) =>
+          `<option value="${v}" ${status === v ? 'selected' : ''}>${label}</option>`
+        ).join('')}
+      </select>
+      ${(() => {
+        const max = SKILL_MAX[c.rarity] || 0;
+        if (!max) return '';
+        const lv = (myData[c.id + '_lv'] ?? 0);
+        return `<div class="skill-lv-wrap">
+          <span class="skill-lv-label">スキルLv</span>
+          <div class="lv-stepper">
+            <button class="lv-btn" onclick="changeLv('${c.id}',${max},-1,this)" ${lv<=0?'disabled':''}>−</button>
+            <span class="lv-val">${lv}</span>
+            <button class="lv-btn" onclick="changeLv('${c.id}',${max},1,this)" ${lv>=max?'disabled':''}>＋</button>
+            <span class="lv-max">/ ${max}</span>
+          </div>
+        </div>`;
+      })()}
+
+    `;
+    grid.appendChild(el);
+  });
+}
+
+function changeLv(id, max, delta, btn) {
+  const stepper = btn.closest('.lv-stepper');
+  const valEl   = stepper.querySelector('.lv-val');
+  const cur  = myData[id + '_lv'] ?? 0;
+  const next = Math.max(0, Math.min(max, cur + delta));
+  myData[id + '_lv'] = next;
+  valEl.textContent = next;
+  stepper.querySelectorAll('.lv-btn')[0].disabled = (next <= 0);
+  stepper.querySelectorAll('.lv-btn')[1].disabled = (next >= max);
+  saveMyData();
+}
+
+function changeStatus(id, sel) {
+  myData[id] = sel.value;
+  sel.dataset.v = sel.value;
+  saveMyData();
+  updateCounts();
+  updateProgress();
+  if (activeTab && myData[id] !== activeTab) {
+    setTimeout(() => render(), 180);
+  }
+}
+
+function saveMyData() {
+  localStorage.setItem(MY_KEY, JSON.stringify(myData));
+}
+
+// =====================================================
+// カウント・進捗
+// =====================================================
+function updateCounts() {
+  const counts = { list:0, awake:0, bench:0, viewed:0, unseen:0 };
+  masterCards.forEach(c => { counts[myData[c.id] || 'unseen']++; });
+  document.getElementById('cnt-all').textContent = masterCards.length;
+  Object.keys(counts).forEach(k => {
+    const el = document.getElementById('cnt-' + k);
+    if (el) el.textContent = counts[k];
+  });
+}
+
+function updateProgress() {
+  const total = masterCards.length;
+  if (!total) return;
+  const counts = { list:0, awake:0, bench:0, viewed:0, unseen:0 };
+  masterCards.forEach(c => { counts[myData[c.id] || 'unseen']++; });
+
+  const filled = counts.list + counts.awake + counts.bench + counts.viewed;
+  const pct = Math.round(filled / total * 100);
+
+  const segs = [
+    { key:'list',   color:'var(--s-list)',   label:'一覧' },
+    { key:'awake',  color:'var(--s-awake)',  label:'覚醒/お別れ済' },
+    { key:'bench',  color:'var(--s-bench)',  label:'控え室' },
+    { key:'viewed', color:'var(--s-viewed)', label:'未所持閲覧済' },
+    { key:'unseen', color:'#e5e7eb',         label:'未所持未閲覧' },
+  ];
+
+  document.getElementById('prog-stats').innerHTML =
+    segs.map(s =>
+      `<div class="p-chip">
+        <div class="p-dot" style="background:${s.color}"></div>
+        ${s.label} <strong>${counts[s.key]}</strong>
+      </div>`
+    ).join('') +
+    `<div class="pct-text">${pct}% 埋まり</div>`;
+
+  document.getElementById('prog-bar').innerHTML =
+    segs.map(s =>
+      `<div class="progress-seg"
+        style="width:${counts[s.key]/total*100}%;background:${s.color}">
+      </div>`
+    ).join('');
+}
+
+// =====================================================
+// 自分データ export/import
+// =====================================================
+function exportMyData() {
+  const data = { version:1, savedAt: new Date().toISOString(), myData };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `i7card_mydata_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+}
+
+function importMyData(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      myData = data.myData || data;
+      saveMyData();
+      render();
+      alert('自分のデータを読み込みました');
+    } catch { alert('ファイルの形式が正しくありません'); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+// =====================================================
+// ユーティリティ
+// =====================================================
+function esc(s) {
+  return String(s || '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// =====================================================
+// 起動
+// =====================================================
+window.addEventListener('load', () => {
+  const savedUrl = localStorage.getItem(GAS_URL_KEY);
+  if (savedUrl) {
+    document.getElementById('gas-url-input').value = savedUrl;
+    // キャッシュがあればそちらで先に表示
+    const cached = localStorage.getItem(MASTER_KEY);
+    if (cached) {
+      tryResume();
+    }
+  }
+});
+</script>
+</body>
+</html>
