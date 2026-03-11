@@ -408,23 +408,38 @@ function setSaveState(state) {
 // =====================================================
 const MAIN_CHARAS = [
   '和泉一織','二階堂大和','和泉三月','四葉環','逢坂壮五','六弥ナギ',
-  '七瀬陸','八乙女楽','九条天','十龍之介','百','千亥清','悠',
+  '七瀬陸','八乙女楽','九条天','十龍之介','百','千','亥清悠',
   '狗丸トウマ','棗巳波','御堂虎於'
 ];
+const UNIT_CHARAS = ['IDOLiSH7','TRIGGER','Re:vale','ZOOL','MEZZO'];
 
 function buildCharaFilter() {
   const allCharas = [...new Set(masterCards.map(c => c.chara))].filter(Boolean);
-  // 主要16人を先に、残りは五十音順
-  const main  = MAIN_CHARAS.filter(ch => allCharas.includes(ch));
-  const other = allCharas.filter(ch => !MAIN_CHARAS.includes(ch)).sort();
-  const sorted = [...main, ...other];
   const sel = document.getElementById('f-chara');
   sel.innerHTML = '<option value="">全キャラ</option>';
-  // 主要キャラとその他の間に区切りを入れる
+
+  // 主要16人（順番通り）
+  const main = MAIN_CHARAS.filter(ch => allCharas.includes(ch));
   main.forEach(ch => {
     const o = document.createElement('option');
     o.value = ch; o.textContent = ch; sel.appendChild(o);
   });
+
+  // ユニット名
+  const units = UNIT_CHARAS.filter(ch => allCharas.includes(ch));
+  if (units.length) {
+    const sep = document.createElement('option');
+    sep.disabled = true; sep.textContent = '── ユニット ──';
+    sel.appendChild(sep);
+    units.forEach(ch => {
+      const o = document.createElement('option');
+      o.value = ch; o.textContent = ch; sel.appendChild(o);
+    });
+  }
+
+  // その他
+  const known = new Set([...MAIN_CHARAS, ...UNIT_CHARAS]);
+  const other = allCharas.filter(ch => !known.has(ch)).sort();
   if (other.length) {
     const sep = document.createElement('option');
     sep.disabled = true; sep.textContent = '── その他 ──';
