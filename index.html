@@ -212,7 +212,7 @@ select.filter-sel { cursor:pointer; }
 
 <!-- メイン -->
 <main id="main-content" style="display:none">
-  <div class="filter-restore-bar" id="filter-restore-bar" onclick="restoreFilters()">← フィルターに戻る</div>
+  <div class="filter-restore-bar" id="filter-restore-bar" onclick="restoreFilters()" style="display:none">← フィルターに戻る</div>
   <div class="progress-section">
     <div class="progress-title">◆ GALLERY PROGRESS</div>
     <div class="progress-stats" id="prog-stats"></div>
@@ -552,7 +552,7 @@ function buildCardHTML(c) {
         ${c.id ? `<span class="card-id">#${c.id}</span>` : ''}
       </div>
     </div>
-    ${awakenCard ? `<div class="awaken-hint awaken-link" onclick="scrollToCard('${awakenCard.id}')">→ 覚醒: ${esc(awakenCard.name)}</div>` : ''}
+    ${awakenCard ? `<div class="awaken-hint">→ 覚醒: ${esc(awakenCard.name)}</div>` : ''}
     <select class="status-select" data-v="${status}" onchange="changeStatus('${c.id}',this)" ${!currentUser ? 'disabled title="ログインすると変更できます"' : ''}>
       ${Object.entries(STATUS_LABELS).map(([v,label]) =>
         `<option value="${v}" ${status===v?'selected':''}>${label}</option>`
