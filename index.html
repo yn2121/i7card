@@ -127,9 +127,11 @@ select.filter-sel { cursor:pointer; }
 .awaken-hint { font-size:.65rem; color:var(--text-muted); margin-bottom:7px; }
 .filter-restore-bar {
   display:none; background:var(--accent); color:#fff;
-  font-size:.75rem; padding:8px 16px; text-align:center;
-  cursor:pointer; position:sticky; top:60px; z-index:99;
-  box-shadow:0 2px 8px rgba(42,82,152,.2);
+  font-size:.8rem; padding:12px 24px; text-align:center;
+  cursor:pointer; position:fixed; bottom:24px; left:50%;
+  transform:translateX(-50%); z-index:999;
+  border-radius:24px; box-shadow:0 4px 16px rgba(42,82,152,.35);
+  white-space:nowrap;
 }
 .filter-restore-bar:hover { background:#1e3a7a; }
 .awaken-link { cursor:pointer; text-decoration:underline dotted; transition:color .15s; }
@@ -657,11 +659,15 @@ function scrollToCard(id) {
   setTimeout(() => {
     const el = document.querySelector(`[data-card-id="${id}"]`);
     if (el) {
-      el.scrollIntoView({ behavior:'smooth', block:'center' });
-      el.style.outline = '2px solid var(--accent)';
-      setTimeout(() => el.style.outline = '', 1500);
+      const headerH = document.querySelector('header')?.offsetHeight || 60;
+      const barH = document.getElementById('filter-restore-bar')?.offsetHeight || 0;
+      const top = el.getBoundingClientRect().top + window.scrollY - headerH - barH - 16;
+      window.scrollTo({ top, behavior: 'smooth' });
+      el.style.outline = '3px solid var(--accent)';
+      el.style.borderRadius = '8px';
+      setTimeout(() => { el.style.outline = ''; el.style.borderRadius = ''; }, 2000);
     }
-  }, 200);
+  }, 250);
 }
 
 function restoreFilters() {
