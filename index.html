@@ -245,7 +245,7 @@ select.filter-sel { cursor:pointer; }
     <div class="stab" data-s="viewed" onclick="setTab(this)">未所持閲覧済 <span class="cnt-badge" id="cnt-viewed">0</span></div>
     <div class="stab" data-s="unseen" onclick="setTab(this)">未所持未閲覧 <span class="cnt-badge" id="cnt-unseen">0</span></div>
   </div>
-  <div id="card-grid" class="grid"></div>
+  <div id="virtual-container" style="position:relative; width:100%;"><div id="card-grid" class="grid" style="position:absolute;width:100%;top:0;left:0;"></div></div>
 </main>
 
 <!-- Google Identity Services -->
@@ -520,59 +520,138 @@ function setTab(el) {
 }
 
 // =====================================================
+// 仮想スクロール
+// =====================================================
+let filteredList = [];
+let vsColCount = 1;
+let vsRowH = 200;
+let vsObserver = null;
+
+function getColCount() {
+  const grid = document.getElementById('card-grid');
+  if (!grid) return 1;
+  const style = window.getComputedStyle(grid);
+  const cols = style.gridTemplateColumns.split(' ').length;
+  return Math.max(1, cols);
+}
+
+function buildCardHTML(c) {
+  const status = myData[c.id] || 'unseen';
+  const rc = RARITY_COLORS[c.rarity] || '#9ca3af';
+  const awakenCard = c.awakenId ? masterCards.find(x => x.id === c.awakenId) : null;
+  const max = SKILL_MAX[c.rarity] || 0;
+  const lv  = myData[c.id + '_lv'] ?? 0;
+  return `
+    <div class="card-top">
+      <div>
+        <div class="card-name">${esc(c.name)}</div>
+        <div class="card-chara">${esc(c.chara)}</div>
+      </div>
+      <div class="card-meta">
+        <span class="badge-rare badge-${c.rarity}">${c.rarity}</span>
+        ${c.id ? `<span class="card-id">#${c.id}</span>` : ''}
+      </div>
+    </div>
+    ${awakenCard ? `<div class="awaken-hint awaken-link" onclick="scrollToCard('${awakenCard.id}')">→ 覚醒: ${esc(awakenCard.name)}</div>` : ''}
+    <select class="status-select" data-v="${status}" onchange="changeStatus('${c.id}',this)" ${!currentUser ? 'disabled title="ログインすると変更できます"' : ''}>
+      ${Object.entries(STATUS_LABELS).map(([v,label]) =>
+        `<option value="${v}" ${status===v?'selected':''}>${label}</option>`
+      ).join('')}
+    </select>
+    ${max ? `<div class="skill-lv-wrap">
+      <span class="skill-lv-label">スキルLv</span>
+      <div class="lv-stepper">
+        <button class="lv-btn" onclick="changeLv('${c.id}',${max},-1,this)" ${!currentUser || lv<=0?'disabled':''}>−</button>
+        <span class="lv-val">${lv}</span>
+        <button class="lv-btn" onclick="changeLv('${c.id}',${max},1,this)" ${!currentUser || lv>=max?'disabled':''}>＋</button>
+        <span class="lv-max">/ ${max}</span>
+      </div>
+    </div>` : ''}
+  `;
+}
+
+function renderVirtual() {
+  const grid = document.getElementById('card-grid');
+  const container = document.getElementById('virtual-container');
+  if (!grid || !container) return;
+
+  vsColCount = getColCount();
+  const rowCount = Math.ceil(filteredList.length / vsColCount);
+  const totalH = rowCount * vsRowH;
+  container.style.height = totalH + 'px';
+  grid.style.position = 'absolute';
+  grid.style.width = '100%';
+
+  const scrollTop = window.scrollY;
+  const winH = window.innerHeight;
+  const gridTop = container.getBoundingClientRect().top + scrollTop;
+
+  const firstRow = Math.max(0, Math.floor((scrollTop - gridTop - winH) / vsRowH));
+  const lastRow  = Math.min(rowCount - 1, Math.ceil((scrollTop - gridTop + winH * 2) / vsRowH));
+
+  const firstIdx = firstRow * vsColCount;
+  const lastIdx  = Math.min(filteredList.length - 1, (lastRow + 1) * vsColCount - 1);
+
+  grid.style.top = (firstRow * vsRowH) + 'px';
+  grid.innerHTML = '';
+
+  for (let i = firstIdx; i <= lastIdx; i++) {
+    const c = filteredList[i];
+    const el = document.createElement('div');
+    el.className = 'card';
+    el.dataset.cardId = c.id;
+    el.style.cssText = `--rc:${RARITY_COLORS[c.rarity]||'#9ca3af'}`;
+    el.innerHTML = buildCardHTML(c);
+    grid.appendChild(el);
+  }
+  initIcons();
+}
+
+function setupVirtualScroll() {
+  if (vsObserver) vsObserver = null;
+  window.removeEventListener('scroll', renderVirtual);
+  window.removeEventListener('resize', onResize);
+  window.addEventListener('scroll', renderVirtual, { passive: true });
+  window.addEventListener('resize', onResize, { passive: true });
+}
+
+function onResize() {
+  vsColCount = getColCount();
+  renderVirtual();
+}
+
+// =====================================================
 // 描画
 // =====================================================
 function render() {
   updateCounts(); updateProgress();
-  const list = getFiltered();
+  filteredList = getFiltered();
   const grid = document.getElementById('card-grid');
-  if (!list.length) {
+  const container = document.getElementById('virtual-container');
+
+  if (!filteredList.length) {
+    container.style.height = 'auto';
+    grid.style.position = 'static';
+    grid.style.top = '';
     initIcons();
     grid.innerHTML = `<div class="empty"><i data-lucide="layout-grid" style="width:40px;height:40px;stroke:#c5d3e8;margin-bottom:10px"></i><p>カードが見つかりません</p></div>`;
     return;
   }
-  grid.innerHTML = '';
-  list.forEach((c, i) => {
-    const status = myData[c.id] || 'unseen';
-    const rc = RARITY_COLORS[c.rarity] || '#9ca3af';
-    const awakenCard = c.awakenId ? masterCards.find(x => x.id === c.awakenId) : null;
-    const max = SKILL_MAX[c.rarity] || 0;
-    const lv  = myData[c.id + '_lv'] ?? 0;
 
-    const el = document.createElement('div');
-    el.className = 'card';
-    el.dataset.cardId = c.id;
-    el.style.cssText = `--rc:${rc}; animation-delay:${i*.018}s`;
-    el.innerHTML = `
-      <div class="card-top">
-        <div>
-          <div class="card-name">${esc(c.name)}</div>
-          <div class="card-chara">${esc(c.chara)}</div>
-        </div>
-        <div class="card-meta">
-          <span class="badge-rare badge-${c.rarity}">${c.rarity}</span>
-          ${c.id ? `<span class="card-id">#${c.id}</span>` : ''}
-        </div>
-      </div>
-      ${awakenCard ? `<div class="awaken-hint awaken-link" onclick="scrollToCard('${awakenCard.id}')">→ 覚醒: ${esc(awakenCard.name)}</div>` : ''}
-      <select class="status-select" data-v="${status}" onchange="changeStatus('${c.id}',this)" ${!currentUser ? 'disabled title="ログインすると変更できます"' : ''}>
-        ${Object.entries(STATUS_LABELS).map(([v,label]) =>
-          `<option value="${v}" ${status===v?'selected':''}>${label}</option>`
-        ).join('')}
-      </select>
-      ${max ? `<div class="skill-lv-wrap">
-        <span class="skill-lv-label">スキルLv</span>
-        <div class="lv-stepper">
-          <button class="lv-btn" onclick="changeLv('${c.id}',${max},-1,this)" ${!currentUser || lv<=0?'disabled':''}>−</button>
-          <span class="lv-val">${lv}</span>
-          <button class="lv-btn" onclick="changeLv('${c.id}',${max},1,this)" ${!currentUser || lv>=max?'disabled':''}>＋</button>
-          <span class="lv-max">/ ${max}</span>
-        </div>
-      </div>` : ''}
-    `;
-    grid.appendChild(el);
-  });
-  initIcons();
+  // カード高さを実測（初回のみ1枚描画して計測）
+  if (vsRowH === 200 && filteredList.length > 0) {
+    const tmp = document.createElement('div');
+    tmp.className = 'card';
+    tmp.style.cssText = 'visibility:hidden;position:absolute;';
+    tmp.innerHTML = buildCardHTML(filteredList[0]);
+    grid.appendChild(tmp);
+    vsColCount = getColCount();
+    vsRowH = tmp.offsetHeight + 11;
+    grid.removeChild(tmp);
+  }
+
+  setupVirtualScroll();
+  renderVirtual();
 }
 
 // =====================================================
@@ -657,16 +736,26 @@ function scrollToCard(id) {
   document.getElementById('filter-restore-bar').style.display = 'block';
 
   setTimeout(() => {
-    const el = document.querySelector(`[data-card-id="${id}"]`);
-    if (el) {
-      const headerH = document.querySelector('header')?.offsetHeight || 60;
-      const barH = document.getElementById('filter-restore-bar')?.offsetHeight || 0;
-      const top = el.getBoundingClientRect().top + window.scrollY - headerH - barH - 16;
-      window.scrollTo({ top, behavior: 'smooth' });
-      el.style.outline = '3px solid var(--accent)';
-      el.style.borderRadius = '8px';
-      setTimeout(() => { el.style.outline = ''; el.style.borderRadius = ''; }, 2000);
-    }
+    // 仮想スクロール対応：対象カードのインデックスから位置を計算
+    const idx = filteredList.findIndex(x => x.id === id);
+    if (idx === -1) return;
+    const container = document.getElementById('virtual-container');
+    const headerH = document.querySelector('header')?.offsetHeight || 60;
+    const gridTop = container.getBoundingClientRect().top + window.scrollY;
+    const rowIdx = Math.floor(idx / vsColCount);
+    const targetTop = gridTop + rowIdx * vsRowH - headerH - 16;
+
+    window.scrollTo({ top: targetTop, behavior: 'smooth' });
+
+    // スクロール後にDOMに描画されてからハイライト
+    setTimeout(() => {
+      const el = document.querySelector(`[data-card-id="${id}"]`);
+      if (el) {
+        el.style.outline = '3px solid var(--accent)';
+        el.style.borderRadius = '8px';
+        setTimeout(() => { el.style.outline = ''; el.style.borderRadius = ''; }, 2000);
+      }
+    }, 400);
   }, 250);
 }
 
