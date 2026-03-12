@@ -245,7 +245,8 @@ select.filter-sel { cursor:pointer; }
     <div class="stab" data-s="viewed" onclick="setTab(this)">未所持閲覧済 <span class="cnt-badge" id="cnt-viewed">0</span></div>
     <div class="stab" data-s="unseen" onclick="setTab(this)">未所持未閲覧 <span class="cnt-badge" id="cnt-unseen">0</span></div>
   </div>
-  <div id="virtual-container" style="position:relative; width:100%;"><div id="card-grid" class="grid" style="position:absolute;width:100%;top:0;left:0;"></div></div>
+  <div id="card-grid" class="grid"></div>
+  <div id="load-sentinel" style="height:40px;"></div>
 </main>
 
 <!-- Google Identity Services -->
@@ -520,20 +521,12 @@ function setTab(el) {
 }
 
 // =====================================================
-// 仮想スクロール
+// 無限スクロール
 // =====================================================
 let filteredList = [];
-let vsColCount = 1;
-let vsRowH = 200;
-let vsObserver = null;
-
-function getColCount() {
-  const grid = document.getElementById('card-grid');
-  if (!grid) return 1;
-  const style = window.getComputedStyle(grid);
-  const cols = style.gridTemplateColumns.split(' ').length;
-  return Math.max(1, cols);
-}
+let renderedCount = 0;
+const PAGE_SIZE = 60;
+let infiniteObserver = null;
 
 function buildCardHTML(c) {
   const status = myData[c.id] || 'unseen';
@@ -636,32 +629,18 @@ function onResize() {
 function render() {
   updateCounts(); updateProgress();
   filteredList = getFiltered();
+  renderedCount = 0;
   const grid = document.getElementById('card-grid');
-  const container = document.getElementById('virtual-container');
+  grid.innerHTML = '';
 
   if (!filteredList.length) {
-    container.style.height = 'auto';
-    grid.style.position = 'static';
-    grid.style.top = '';
     initIcons();
     grid.innerHTML = `<div class="empty"><i data-lucide="layout-grid" style="width:40px;height:40px;stroke:#c5d3e8;margin-bottom:10px"></i><p>カードが見つかりません</p></div>`;
     return;
   }
 
-  // カード高さを実測（初回のみ1枚描画して計測）
-  if (vsRowH === 200 && filteredList.length > 0) {
-    const tmp = document.createElement('div');
-    tmp.className = 'card';
-    tmp.style.cssText = 'visibility:hidden;position:absolute;';
-    tmp.innerHTML = buildCardHTML(filteredList[0]);
-    grid.appendChild(tmp);
-    vsColCount = getColCount();
-    vsRowH = tmp.offsetHeight + 11;
-    grid.removeChild(tmp);
-  }
-
-  setupVirtualScroll();
-  renderVirtual();
+  appendCards(0, PAGE_SIZE);
+  setupInfiniteScroll();
 }
 
 // =====================================================
@@ -746,26 +725,23 @@ function scrollToCard(id) {
   document.getElementById('filter-restore-bar').style.display = 'block';
 
   setTimeout(() => {
-    // 仮想スクロール対応：対象カードのインデックスから位置を計算
     const idx = filteredList.findIndex(x => x.id === id);
     if (idx === -1) return;
-    const container = document.getElementById('virtual-container');
-    const headerH = document.querySelector('header')?.offsetHeight || 60;
-    const gridTop = container.getBoundingClientRect().top + window.scrollY;
-    const rowIdx = Math.floor(idx / vsColCount);
-    const targetTop = gridTop + rowIdx * vsRowH - headerH - 16;
-
-    window.scrollTo({ top: targetTop, behavior: 'smooth' });
-
-    // スクロール後にDOMに描画されてからハイライト
+    // 対象カードまで一気に描画
+    if (renderedCount <= idx) {
+      appendCards(renderedCount, idx + PAGE_SIZE);
+    }
     setTimeout(() => {
       const el = document.querySelector(`[data-card-id="${id}"]`);
       if (el) {
+        const headerH = document.querySelector('header')?.offsetHeight || 60;
+        const top = el.getBoundingClientRect().top + window.scrollY - headerH - 16;
+        window.scrollTo({ top, behavior: 'smooth' });
         el.style.outline = '3px solid var(--accent)';
         el.style.borderRadius = '8px';
         setTimeout(() => { el.style.outline = ''; el.style.borderRadius = ''; }, 2000);
       }
-    }, 400);
+    }, 100);
   }, 250);
 }
 
