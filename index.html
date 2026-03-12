@@ -586,8 +586,8 @@ function renderVirtual() {
   const winH = window.innerHeight;
   const gridTop = container.getBoundingClientRect().top + scrollTop;
 
-  const firstRow = Math.max(0, Math.floor((scrollTop - gridTop - winH) / vsRowH));
-  const lastRow  = Math.min(rowCount - 1, Math.ceil((scrollTop - gridTop + winH * 2) / vsRowH));
+  const firstRow = Math.max(0, Math.floor((scrollTop - gridTop - winH * 3) / vsRowH));
+  const lastRow  = Math.min(rowCount - 1, Math.ceil((scrollTop - gridTop + winH * 4) / vsRowH));
 
   const firstIdx = firstRow * vsColCount;
   const lastIdx  = Math.min(filteredList.length - 1, (lastRow + 1) * vsColCount - 1);
