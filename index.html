@@ -608,12 +608,16 @@ function renderVirtual() {
 }
 
 let vsScrollTimer = null;
+let vsRafTimer = null;
+
 function onScroll() {
-  if (vsScrollTimer) return;
-  vsScrollTimer = requestAnimationFrame(() => {
-    renderVirtual();
-    vsScrollTimer = null;
-  });
+  // 即時描画（ガッとスクロール対応）
+  if (vsRafTimer) cancelAnimationFrame(vsRafTimer);
+  vsRafTimer = requestAnimationFrame(renderVirtual);
+
+  // ゆっくりスクロール中は止まってから再描画（点滅防止）
+  clearTimeout(vsScrollTimer);
+  vsScrollTimer = setTimeout(renderVirtual, 80);
 }
 
 function setupVirtualScroll() {
