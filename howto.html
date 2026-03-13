@@ -36,13 +36,8 @@ main { max-width:700px; margin:0 auto; padding:36px 16px; }
 
 .section { margin-bottom:32px; }
 .section-title {
-  font-size:.82rem; font-weight:700; color:var(--accent);
-  letter-spacing:.06em; margin-bottom:12px;
-  display:flex; align-items:center; gap:8px;
-}
-.section-title::before {
-  content:''; display:inline-block; width:4px; height:1em;
-  background:var(--accent); border-radius:2px;
+  font-size:.8rem; font-weight:700; color:var(--text-muted);
+  letter-spacing:.08em; margin-bottom:12px; text-transform:uppercase;
 }
 .section-body {
   background:var(--surface); border:1.5px solid var(--border);
@@ -51,35 +46,8 @@ main { max-width:700px; margin:0 auto; padding:36px 16px; }
 }
 .section-body p + p { margin-top:10px; }
 
-.step-list { display:flex; flex-direction:column; gap:12px; }
-.step {
-  display:flex; gap:14px; align-items:flex-start;
-}
-.step-num {
-  min-width:26px; height:26px; border-radius:50%;
-  background:var(--accent); color:#fff;
-  font-size:.75rem; font-weight:700;
-  display:flex; align-items:center; justify-content:center;
-  flex-shrink:0; margin-top:2px;
-}
-.step-text { font-size:.85rem; line-height:1.8; }
-.step-text strong { color:var(--accent); }
-
-.status-list { display:flex; flex-direction:column; gap:8px; margin-top:4px; }
-.status-item {
-  display:flex; align-items:center; gap:12px;
-  padding:10px 14px; border-radius:8px; border:1.5px solid var(--border);
-  background:var(--surface);
-}
-.status-badge {
-  padding:3px 10px; border-radius:12px; font-size:.72rem; font-weight:700;
-  white-space:nowrap; flex-shrink:0;
-}
-.status-desc { font-size:.82rem; line-height:1.6; color:var(--text); }
-
-.info-box {
+.note {
   background:#f0f4fb; border:1.5px solid var(--border);
-  border-left:4px solid var(--accent);
   border-radius:8px; padding:14px 18px;
   font-size:.82rem; line-height:1.8; color:var(--text-muted);
   margin-top:12px;
@@ -89,10 +57,26 @@ main { max-width:700px; margin:0 auto; padding:36px 16px; }
 @media(max-width:480px){ .mode-grid { grid-template-columns:1fr; } }
 .mode-card {
   border:1.5px solid var(--border); border-radius:10px;
-  padding:14px 16px; background:var(--surface);
+  padding:14px 16px; background:var(--surface2);
 }
-.mode-card-title { font-size:.82rem; font-weight:700; margin-bottom:8px; color:var(--accent); }
-.mode-card ul { font-size:.8rem; line-height:1.9; padding-left:1em; color:var(--text); }
+.mode-card-title { font-size:.82rem; font-weight:700; margin-bottom:8px; color:var(--text); }
+.mode-card ul { font-size:.8rem; line-height:1.9; padding-left:1.2em; color:var(--text); }
+
+.status-list { display:flex; flex-direction:column; gap:8px; }
+.status-item { display:flex; align-items:baseline; gap:12px; font-size:.85rem; line-height:1.7; }
+.status-badge {
+  padding:2px 10px; border-radius:4px; font-size:.72rem; font-weight:700;
+  white-space:nowrap; flex-shrink:0;
+}
+.status-desc { color:var(--text-muted); }
+
+.step-list { display:flex; flex-direction:column; gap:12px; }
+.step { display:flex; gap:12px; align-items:flex-start; font-size:.85rem; line-height:1.8; }
+.step-num {
+  font-family:'Rajdhani',sans-serif; font-size:1rem; font-weight:700;
+  color:var(--accent); min-width:20px; flex-shrink:0; margin-top:1px;
+}
+.step strong { color:var(--accent); }
 
 footer {
   text-align:center; padding:32px 16px;
@@ -110,28 +94,21 @@ footer {
 <main>
   <div class="page-title">◆ 使い方</div>
 
-  <!-- できること -->
   <div class="section">
-    <div class="section-title">このサイトでできること</div>
+    <div class="section-title">できること</div>
     <div class="section-body">
       <p>アイドリッシュセブンのカード所持状況を管理できる非公式ツールです。</p>
-      <p>・所持カードのステータス管理（一覧・控え室・覚醒済など）<br>
-         ・スキルレベルの記録<br>
-         ・覚醒元・覚醒先カードの確認<br>
-         ・貸せるカード・借りたいカードの画像出力（Twitter/X共有用）</p>
-      <div class="info-box">
-        💡 ログインしなくてもカード一覧の閲覧はできます（ゲストモード）。所持データの記録・同期にはGoogleログインが必要です。
-      </div>
+      <p>所持ステータスとスキルレベルの記録、覚醒元・覚醒先の確認、貸し借り用の画像出力ができます。</p>
+      <div class="note">ログインなしでもカード一覧の閲覧は可能です。所持データの保存・同期にはGoogleログインが必要です。</div>
     </div>
   </div>
 
-  <!-- ゲストとログインの違い -->
   <div class="section">
     <div class="section-title">ゲストモードとログインの違い</div>
     <div class="section-body">
       <div class="mode-grid">
         <div class="mode-card">
-          <div class="mode-card-title">👤 ゲストモード</div>
+          <div class="mode-card-title">ゲストモード</div>
           <ul>
             <li>ログイン不要</li>
             <li>カード一覧の閲覧OK</li>
@@ -140,7 +117,7 @@ footer {
           </ul>
         </div>
         <div class="mode-card">
-          <div class="mode-card-title">🔑 Googleログイン</div>
+          <div class="mode-card-title">Googleログイン</div>
           <ul>
             <li>所持ステータスの変更</li>
             <li>スキルレベルの記録</li>
@@ -152,60 +129,43 @@ footer {
     </div>
   </div>
 
-  <!-- ステータスの説明 -->
   <div class="section">
     <div class="section-title">所持ステータスの種類</div>
     <div class="section-body">
       <div class="status-list">
         <div class="status-item">
-          <span class="status-badge" style="background:#fef2f2;color:#991b1b;border:1.5px solid #fca5a5;">一覧</span>
-          <span class="status-desc">現在手元にあって一覧に入れているカード</span>
+          <span class="status-badge" style="background:#fef2f2;color:#991b1b;">一覧</span>
+          <span class="status-desc">手元にあって一覧に入れているカード</span>
         </div>
         <div class="status-item">
-          <span class="status-badge" style="background:#fff7ed;color:#9a3412;border:1.5px solid #fdba74;">覚醒/お別れ済</span>
-          <span class="status-desc">覚醒させた・お別れしたカード（所持履歴として残す用）</span>
+          <span class="status-badge" style="background:#fff7ed;color:#9a3412;">覚醒/お別れ済</span>
+          <span class="status-desc">覚醒・お別れしたカード。所持履歴として残せます</span>
         </div>
         <div class="status-item">
-          <span class="status-badge" style="background:#fffbeb;color:#92400e;border:1.5px solid #fde68a;">控え室</span>
+          <span class="status-badge" style="background:#fffbeb;color:#92400e;">控え室</span>
           <span class="status-desc">持っているけど一覧には入れていないカード</span>
         </div>
         <div class="status-item">
-          <span class="status-badge" style="background:#eff6ff;color:#1e40af;border:1.5px solid #bfdbfe;">未所持閲覧済</span>
+          <span class="status-badge" style="background:#eff6ff;color:#1e40af;">未所持閲覧済</span>
           <span class="status-desc">持っていないが確認済みのカード</span>
         </div>
         <div class="status-item">
-          <span class="status-badge" style="background:#f9fafb;color:#6b7280;border:1.5px solid #e5e7eb;">未所持未閲覧</span>
-          <span class="status-desc">まだ確認していないカード（デフォルト）</span>
+          <span class="status-badge" style="background:#f9fafb;color:#6b7280;">未所持未閲覧</span>
+          <span class="status-desc">まだ確認していないカード（初期状態）</span>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- 基本的な使い方 -->
   <div class="section">
     <div class="section-title">基本的な使い方</div>
     <div class="section-body">
       <div class="step-list">
-        <div class="step">
-          <div class="step-num">1</div>
-          <div class="step-text">右上の<strong>「ログイン」</strong>からGoogleアカウントでログインします。</div>
-        </div>
-        <div class="step">
-          <div class="step-num">2</div>
-          <div class="step-text">カード一覧が表示されます。キャラ・レアリティで<strong>フィルター</strong>して探しやすくなります。</div>
-        </div>
-        <div class="step">
-          <div class="step-num">3</div>
-          <div class="step-text">カード右下の<strong>ステータス選択</strong>から所持状況を変更します。変更は自動保存されます。</div>
-        </div>
-        <div class="step">
-          <div class="step-num">4</div>
-          <div class="step-text">覚醒元・覚醒先が表示されているカードはクリックすると<strong>覚醒先のカード情報</strong>をポップアップで確認できます。</div>
-        </div>
-        <div class="step">
-          <div class="step-num">5</div>
-          <div class="step-text">右上の<strong>「画像出力」</strong>から貸せるカード・借りたいカードをTwitter/X投稿用の画像として書き出せます。</div>
-        </div>
+        <div class="step"><div class="step-num">1.</div><div>右上の<strong>「ログイン」</strong>からGoogleアカウントでログインします。</div></div>
+        <div class="step"><div class="step-num">2.</div><div>キャラやレアリティで<strong>フィルター</strong>しながらカードを探せます。</div></div>
+        <div class="step"><div class="step-num">3.</div><div>カード右下の<strong>ステータス選択</strong>で所持状況を変更します。変更は自動で保存されます。</div></div>
+        <div class="step"><div class="step-num">4.</div><div>覚醒元・覚醒先が表示されているカードをタップすると<strong>関連カードの情報</strong>をポップアップで確認できます。</div></div>
+        <div class="step"><div class="step-num">5.</div><div>右上の<strong>「画像出力」</strong>から、貸せるカード・借りたいカードをX投稿用の画像として書き出せます。</div></div>
       </div>
     </div>
   </div>
