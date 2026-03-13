@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>【非公式】i7card managerサイト</title>
+<title>【非公式】アイドリッシュセブンカード管理ツール | i7card manager</title>
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@400;500;700&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <style>
@@ -18,13 +18,18 @@ body { background:var(--bg); color:var(--text); font-family:'M PLUS 1p',sans-ser
 
 header {
   background:var(--surface); border-bottom:2px solid var(--accent); box-shadow:0 2px 12px rgba(42,82,152,.10);
-  padding:13px 22px; display:flex; align-items:center; justify-content:space-between;
-  flex-wrap:wrap; gap:8px; position:sticky; top:0; z-index:100;
+  padding:10px 16px; display:flex; align-items:center; justify-content:space-between;
+  flex-wrap:wrap; gap:6px; position:sticky; top:0; z-index:100;
 }
 .logo { font-family:'Rajdhani',sans-serif; font-size:1.3rem; font-weight:700; color:var(--accent); letter-spacing:.1em; }
-.unofficial { font-size:.8rem; background:#e8eef8; color:#2a5298; border:1px solid #c5d3e8; border-radius:4px; padding:2px 8px; margin-left:6px; vertical-align:middle; font-weight:500; white-space:nowrap; }
-.header-right { display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
-.update-info { font-size:.68rem; color:var(--text-muted); white-space:nowrap; }
+.unofficial { font-size:.72rem; background:#e8eef8; color:#2a5298; border:1px solid #c5d3e8; border-radius:4px; padding:2px 7px; margin-right:6px; vertical-align:middle; font-weight:500; white-space:nowrap; }
+.header-left { display:flex; align-items:center; }
+.header-meta { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.header-right { display:flex; gap:5px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
+.update-info { font-size:.65rem; color:var(--text-muted); white-space:nowrap; }
+@media(max-width:600px){
+  .header-right .btn-sm { font-size:.68rem; padding:3px 8px; }
+}
 .site-footer { text-align:center; padding:24px 16px; font-size:.72rem; color:var(--text-muted); border-top:1px solid var(--border); margin-top:32px; }
 .user-badge { font-size:.72rem; background:#dde6f5; border:1px solid var(--border); border-radius:20px; padding:3px 10px; color:var(--accent); font-weight:500; }
 
@@ -198,14 +203,16 @@ select.filter-sel { cursor:pointer; }
 <body>
 
 <header>
-  <div>
+  <div class="header-left">
     <span class="unofficial">非公式</span>
     <span class="logo">i7card manager</span>
   </div>
-  <div class="header-right">
+  <div class="header-meta">
     <span class="update-info" id="update-info"></span>
     <div class="save-indicator"><div class="save-dot" id="save-dot"></div><span id="save-text"></span></div>
     <span class="user-badge" id="user-badge" style="display:none"></span>
+  </div>
+  <div class="header-right" style="width:100%;">
     <button class="btn btn-sm" onclick="fetchCards(true)"><i data-lucide="refresh-cw" style="width:13px;height:13px;vertical-align:middle;margin-right:4px"></i>カード更新</button>
     <a href="howto.html" class="btn btn-sm" target="_blank">使い方</a>
     <a href="about.html" class="btn btn-sm" target="_blank">このサイトについて</a>
