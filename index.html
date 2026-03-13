@@ -207,6 +207,7 @@ select.filter-sel { cursor:pointer; }
     <span class="user-badge" id="user-badge" style="display:none"></span>
     <button class="btn btn-sm" onclick="fetchCards(true)"><i data-lucide="refresh-cw" style="width:13px;height:13px;vertical-align:middle;margin-right:4px"></i>カード更新</button>
     <a href="about.html" class="btn btn-sm" target="_blank">このサイトについて</a>
+    <button class="btn btn-sm" id="export-btn" style="display:none" onclick="showExportMenu()"><i data-lucide="image" style="width:13px;height:13px;vertical-align:middle;margin-right:4px"></i>画像出力</button>
     <button class="btn btn-sm btn-primary" id="login-btn" style="display:none" onclick="showLoginScreen()"><i data-lucide="log-in" style="width:13px;height:13px;vertical-align:middle;margin-right:4px"></i>ログイン</button>
     <button class="btn btn-sm" id="logout-btn" style="display:none" onclick="logout()"><i data-lucide="log-out" style="width:13px;height:13px;vertical-align:middle;margin-right:4px"></i>ログアウト</button>
   </div>
@@ -263,6 +264,17 @@ select.filter-sel { cursor:pointer; }
     <div class="stab" data-s="unseen" onclick="setTab(this)">未所持未閲覧 <span class="cnt-badge" id="cnt-unseen">0</span></div>
   </div>
   <div id="card-grid" class="grid"></div>
+  <div class="modal-overlay" id="export-modal" onclick="closeExportModal(event)">
+    <div class="modal-box" style="max-width:320px;text-align:center;">
+      <button class="modal-close" onclick="document.getElementById('export-modal').classList.remove('open')">✕</button>
+      <div style="font-weight:700;font-size:1rem;margin-bottom:16px;">画像出力</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <button class="btn btn-primary" onclick="exportImage('lend')">📤 貸せるカード（一覧・控え室）</button>
+        <button class="btn btn-primary" onclick="exportImage('borrow')">📥 借りたいカード（未所持）</button>
+      </div>
+      <div id="export-status" style="font-size:.75rem;color:var(--text-muted);margin-top:12px;"></div>
+    </div>
+  </div>
   <div class="modal-overlay" id="awaken-modal" onclick="closeAwakenModal(event)">
     <div class="modal-box">
       <button class="modal-close" onclick="document.getElementById('awaken-modal').classList.remove('open')">✕</button>
@@ -274,6 +286,7 @@ select.filter-sel { cursor:pointer; }
 
 <!-- Google Identity Services -->
 <script src="https://accounts.google.com/gsi/client" async></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <script>
 // =====================================================
@@ -345,6 +358,7 @@ async function onLogin() {
   document.getElementById('user-badge').textContent = currentUser.name;
   document.getElementById('user-badge').style.display = '';
   document.getElementById('logout-btn').style.display = '';
+  document.getElementById('export-btn').style.display = '';
   document.getElementById('login-btn').style.display = 'none';
 
   // カードマスター読み込み
@@ -785,6 +799,90 @@ function scrollToCard(id) {
       }
     }, 100);
   }, 250);
+}
+
+function showExportMenu() {
+  document.getElementById('export-modal').classList.add('open');
+}
+
+function closeExportModal(e) {
+  if (e.target === document.getElementById('export-modal')) {
+    document.getElementById('export-modal').classList.remove('open');
+  }
+}
+
+async function exportImage(type) {
+  const statusEl = document.getElementById('export-status');
+  statusEl.textContent = '生成中...';
+
+  const targets = type === 'lend'
+    ? masterCards.filter(c => ['list','bench'].includes(myData[c.id] || 'unseen'))
+    : masterCards.filter(c => ['unseen','viewed'].includes(myData[c.id] || 'unseen'));
+
+  if (!targets.length) {
+    statusEl.textContent = '対象カードがありません';
+    return;
+  }
+
+  const PAGE = 20;
+  const pages = Math.ceil(targets.length / PAGE);
+  const label = type === 'lend' ? '貸せるカード' : '借りたいカード';
+  const headerColor = type === 'lend' ? '#e57373' : '#64a8e8';
+
+  for (let p = 0; p < pages; p++) {
+    statusEl.textContent = `生成中... ${p+1}/${pages}`;
+    const slice = targets.slice(p * PAGE, (p+1) * PAGE);
+
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'position:fixed;left:-9999px;top:0;width:600px;background:#eef2f7;padding:20px;font-family:"M PLUS 1p",sans-serif;';
+
+    const header = document.createElement('div');
+    header.style.cssText = `background:${headerColor};color:#fff;border-radius:10px;padding:12px 16px;margin-bottom:14px;font-weight:700;font-size:1rem;display:flex;justify-content:space-between;align-items:center;`;
+    header.innerHTML = `<span>【非公式】i7card manager</span><span style="font-size:.8rem;">${label} (${p+1}/${pages})</span>`;
+    wrap.appendChild(header);
+
+    const grid = document.createElement('div');
+    grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:8px;';
+
+    slice.forEach(cd => {
+      const rc = RARITY_COLORS[cd.rarity] || '#9ca3af';
+      const status = myData[cd.id] || 'unseen';
+      const statusLabel = STATUS_LABELS[status] || status;
+      const row = document.createElement('div');
+      row.style.cssText = `background:#fff;border-radius:8px;padding:10px 12px;border-left:4px solid ${rc};`;
+      row.innerHTML = `
+        <div style="font-size:.78rem;font-weight:700;color:#1a2744;line-height:1.3;margin-bottom:3px;">${esc(cd.name)}</div>
+        <div style="font-size:.68rem;color:#6b7fa8;">${esc(cd.chara)}</div>
+        <div style="display:flex;gap:6px;margin-top:5px;align-items:center;">
+          <span style="font-size:.65rem;font-weight:700;padding:1px 6px;border-radius:4px;background:${rc}22;color:${rc};border:1px solid ${rc}66;">${cd.rarity}</span>
+          <span style="font-size:.65rem;color:#9ca3af;">#${cd.id}</span>
+          <span style="font-size:.65rem;color:#9ca3af;">${statusLabel}</span>
+        </div>
+      `;
+      grid.appendChild(row);
+    });
+
+    wrap.appendChild(grid);
+
+    const footer = document.createElement('div');
+    footer.style.cssText = 'text-align:right;font-size:.65rem;color:#9ca3af;margin-top:10px;';
+    footer.textContent = '©アイドリッシュセブン CD:Arina Tanemura / 非公式ツール';
+    wrap.appendChild(footer);
+
+    document.body.appendChild(wrap);
+
+    await new Promise(r => setTimeout(r, 100));
+    const canvas = await html2canvas(wrap, { scale: 2, backgroundColor: '#eef2f7', useCORS: true });
+    document.body.removeChild(wrap);
+
+    const a = document.createElement('a');
+    a.download = `i7card_${label}_${p+1}.png`;
+    a.href = canvas.toDataURL('image/png');
+    a.click();
+    await new Promise(r => setTimeout(r, 300));
+  }
+
+  statusEl.textContent = `完了！${pages}枚の画像をダウンロードしました`;
 }
 
 function openAwakenModal(id) {
