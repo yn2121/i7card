@@ -10,7 +10,7 @@
 :root {
   --bg:#eef2f7; --surface:#fff; --surface2:#e3eaf4; --border:#c5d3e8;
   --accent:#2a5298; --text:#1a2744; --text-muted:#6b7fa8;
-  --rN:#888; --rR:#c8922a; --rSR:#a0a8b0; --rSSR:#c9a84c; --rUR:#4ab8e8;
+  --rN:#888; --rR:#a0673a; --rSR:#a0a8b0; --rSSR:#c9a84c; --rUR:#4ab8e8;
   --s-list:#059669; --s-awake:#7c3aed; --s-bench:#d97706; --s-viewed:#2563eb; --s-unseen:#9ca3af;
 }
 * { margin:0; padding:0; box-sizing:border-box; }
@@ -121,7 +121,7 @@ select.filter-sel { cursor:pointer; }
 .card-id { font-family:'Rajdhani',sans-serif; font-size:.68rem; color:var(--text-muted); }
 .badge-rare { display:inline-block; padding:1px 7px; border-radius:4px; font-family:'Rajdhani',sans-serif; font-weight:700; font-size:.67rem; }
 .badge-N  { background:#fff; color:#555; border:2px solid #bbb; font-weight:700; }
-.badge-R  { background:linear-gradient(135deg,#f5dfa0,#c8922a); color:#fff; border:2px solid #c8922a; font-weight:700; text-shadow:0 1px 2px rgba(0,0,0,.3); }
+.badge-R  { background:linear-gradient(135deg,#d4a882,#a0673a); color:#fff; border:2px solid #9a5f30; font-weight:700; text-shadow:0 1px 2px rgba(0,0,0,.3); }
 .badge-SR { background:linear-gradient(135deg,#e8ecef,#a0a8b0,#d8dde2); color:#fff; border:2px solid #a0a8b0; font-weight:700; text-shadow:0 1px 2px rgba(0,0,0,.3); }
 .badge-SSR{ background:linear-gradient(135deg,#f5e6a0,#c9a84c,#f0d060); color:#fff; border:2px solid #c9a84c; font-weight:700; text-shadow:0 1px 2px rgba(0,0,0,.3); }
 .badge-UR { background:linear-gradient(135deg,#a8e4f8,#4ab8e8,#7dd4f4,#c0eeff); color:#fff; border:2px solid #4ab8e8; font-weight:700; text-shadow:0 1px 2px rgba(0,0,0,.3); background-size:200% 200%; animation:aurora 3s ease infinite; }
@@ -289,7 +289,7 @@ const STATUS_LABELS = {
   list:'一覧', awake:'覚醒/お別れ済', bench:'控え室',
   viewed:'未所持閲覧済', unseen:'未所持未閲覧',
 };
-const RARITY_COLORS = { N:'#bbbbbb', R:'#c8922a', SR:'#a0a8b0', SSR:'#c9a84c', UR:'#4ab8e8' };
+const RARITY_COLORS = { N:'#bbbbbb', R:'#a0673a', SR:'#a0a8b0', SSR:'#c9a84c', UR:'#4ab8e8' };
 const COL = { id:'カードID', name:'カード名', chara:'名前', rarity:'レア', awaken:'覚醒先ID', note:'メモ' };
 
 // =====================================================
