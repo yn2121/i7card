@@ -295,6 +295,7 @@ const COL = { id:'カードID', name:'カード名', chara:'名前', rarity:'レ
 // 状態
 // =====================================================
 let masterCards = [];
+let awakenFromMap = {}; // { 覚醒先ID: 覚醒元カード }
 let myData      = {};
 let activeTab   = 'list';
 let currentUser = null;
@@ -632,7 +633,13 @@ function buildCardHTML(c) {
         ${c.id ? `<span class="card-id">#${c.id}</span>` : ''}
       </div>
     </div>
-    ${awakenCard ? `<div class="awaken-hint awaken-link" onclick="openAwakenModal('${awakenCard.id}')">→ 覚醒: ${esc(awakenCard.name)}</div>` : ''}
+    ${(()=>{
+      const fromCard = awakenFromMap[c.id];
+      const lines = [];
+      if (fromCard) lines.push(`<div class="awaken-hint awaken-link" onclick="openAwakenModal('${fromCard.id}')">← 覚醒元: ${esc(fromCard.name)}</div>`);
+      if (awakenCard) lines.push(`<div class="awaken-hint awaken-link" onclick="openAwakenModal('${awakenCard.id}')">→ 覚醒先: ${esc(awakenCard.name)}</div>`);
+      return lines.join('');
+    })()}
     <select class="status-select" data-v="${status}" onchange="changeStatus('${c.id}',this)" ${!currentUser ? 'disabled title="ログインすると変更できます"' : ''}>
       ${Object.entries(STATUS_LABELS).map(([v,label]) =>
         `<option value="${v}" ${status===v?'selected':''}>${label}</option>`
