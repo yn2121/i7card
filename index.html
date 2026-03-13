@@ -411,6 +411,9 @@ async function fetchCards(isUpdate = false) {
     document.getElementById('update-info').textContent =
       `最終更新: ${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
 
+    // 覚醒元マップ生成
+    awakenFromMap = {};
+    masterCards.forEach(card => { if (card.awakenId) awakenFromMap[card.awakenId] = card; });
     buildCharaFilter();
     render();
   } catch (err) {
