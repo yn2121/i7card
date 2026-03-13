@@ -247,6 +247,7 @@ select.filter-sel { cursor:pointer; }
   </div>
   <div class="toolbar">
     <input type="text" class="search" id="q" placeholder="カード名・キャラ名で検索..." oninput="render()">
+    <button class="btn btn-sm" id="sort-btn" onclick="toggleSort()" style="white-space:nowrap;">ID ↑</button>
   </div>
   <div class="filter-tags-section">
     <div class="filter-group">
@@ -583,7 +584,13 @@ function getFiltered() {
     if (selectedRares.size  && !selectedRares.has(c.rarity)) return false;
     if (selectedCharas.size && !selectedCharas.has(c.chara))  return false;
     return true;
-  }).sort((a,b) => Number(a.id) - Number(b.id));
+  }).sort((a,b) => sortOrder === 'asc' ? Number(a.id) - Number(b.id) : Number(b.id) - Number(a.id));
+}
+
+function toggleSort() {
+  sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+  document.getElementById('sort-btn').textContent = sortOrder === 'asc' ? 'ID ↑' : 'ID ↓';
+  render();
 }
 
 function toggleRareTag(el) {
@@ -612,6 +619,7 @@ function setTab(el) {
 // =====================================================
 let filteredList = [];
 let renderedCount = 0;
+let sortOrder = 'asc'; // asc | desc
 const PAGE_SIZE = 60;
 let infiniteObserver = null;
 
@@ -717,7 +725,7 @@ function changeStatus(id, sel) {
   sel.dataset.v = sel.value;
   scheduleSave();
   updateCounts(); updateProgress();
-  if (activeTab && myData[id] !== activeTab) setTimeout(() => render(), 180);
+  if (activeTab && myData[id] !== activeTab) setTimeout(() => render(), 2000);
 }
 
 function changeLv(id, max, delta, btn) {
