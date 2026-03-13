@@ -528,6 +528,35 @@ let renderedCount = 0;
 const PAGE_SIZE = 60;
 let infiniteObserver = null;
 
+function appendCards(from, to) {
+  const grid = document.getElementById('card-grid');
+  const frag = document.createDocumentFragment();
+  for (let i = from; i < to && i < filteredList.length; i++) {
+    const cd = filteredList[i];
+    const el = document.createElement('div');
+    el.className = 'card';
+    el.dataset.cardId = cd.id;
+    el.style.cssText = `--rc:${RARITY_COLORS[cd.rarity]||'#9ca3af'}`;
+    el.innerHTML = buildCardHTML(cd);
+    frag.appendChild(el);
+  }
+  grid.appendChild(frag);
+  renderedCount = Math.min(to, filteredList.length);
+  initIcons();
+}
+
+function setupInfiniteScroll() {
+  if (infiniteObserver) infiniteObserver.disconnect();
+  const sentinel = document.getElementById('load-sentinel');
+  if (!sentinel) return;
+  infiniteObserver = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting && renderedCount < filteredList.length) {
+      appendCards(renderedCount, renderedCount + PAGE_SIZE);
+    }
+  }, { rootMargin: '200px' });
+  infiniteObserver.observe(sentinel);
+}
+
 function buildCardHTML(c) {
   const status = myData[c.id] || 'unseen';
   const rc = RARITY_COLORS[c.rarity] || '#9ca3af';
