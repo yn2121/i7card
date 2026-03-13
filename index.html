@@ -563,65 +563,9 @@ function buildCardHTML(c) {
   `;
 }
 
-function renderVirtual() {
-  const grid = document.getElementById('card-grid');
-  const container = document.getElementById('virtual-container');
-  if (!grid || !container) return;
 
-  vsColCount = getColCount();
-  const rowCount = Math.ceil(filteredList.length / vsColCount);
-  const totalH = rowCount * vsRowH;
-  container.style.height = totalH + 'px';
-  grid.style.position = 'absolute';
-  grid.style.width = '100%';
 
-  const scrollTop = window.scrollY;
-  const winH = window.innerHeight;
-  const gridTop = container.getBoundingClientRect().top + scrollTop;
 
-  const firstRow = Math.max(0, Math.floor((scrollTop - gridTop - winH * 6) / vsRowH));
-  const lastRow  = Math.min(rowCount - 1, Math.ceil((scrollTop - gridTop + winH * 7) / vsRowH));
-
-  const firstIdx = firstRow * vsColCount;
-  const lastIdx  = Math.min(filteredList.length - 1, (lastRow + 1) * vsColCount - 1);
-
-  grid.style.top = (firstRow * vsRowH) + 'px';
-  grid.innerHTML = '';
-
-  for (let i = firstIdx; i <= lastIdx; i++) {
-    const c = filteredList[i];
-    const el = document.createElement('div');
-    el.className = 'card';
-    el.dataset.cardId = c.id;
-    el.style.cssText = `--rc:${RARITY_COLORS[c.rarity]||'#9ca3af'}`;
-    el.innerHTML = buildCardHTML(c);
-    grid.appendChild(el);
-  }
-  initIcons();
-}
-
-let vsRafTimer = null;
-
-function onScroll() {
-  if (vsRafTimer) cancelAnimationFrame(vsRafTimer);
-  vsRafTimer = requestAnimationFrame(() => {
-    renderVirtual();
-    vsRafTimer = null;
-  });
-}
-
-function setupVirtualScroll() {
-  if (vsObserver) vsObserver = null;
-  window.removeEventListener('scroll', onScroll);
-  window.removeEventListener('resize', onResize);
-  window.addEventListener('scroll', onScroll, { passive: true });
-  window.addEventListener('resize', onResize, { passive: true });
-}
-
-function onResize() {
-  vsColCount = getColCount();
-  renderVirtual();
-}
 
 // =====================================================
 // 描画
