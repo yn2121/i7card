@@ -25,6 +25,7 @@ header {
 .unofficial { font-size:.8rem; background:#e8eef8; color:#2a5298; border:1px solid #c5d3e8; border-radius:4px; padding:2px 8px; margin-left:6px; vertical-align:middle; font-weight:500; white-space:nowrap; }
 .header-right { display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
 .update-info { font-size:.68rem; color:var(--text-muted); white-space:nowrap; }
+.site-footer { text-align:center; padding:24px 16px; font-size:.72rem; color:var(--text-muted); border-top:1px solid var(--border); margin-top:32px; }
 .user-badge { font-size:.72rem; background:#dde6f5; border:1px solid var(--border); border-radius:20px; padding:3px 10px; color:var(--accent); font-weight:500; }
 
 main { max-width:1060px; margin:0 auto; padding:20px 16px; }
@@ -424,8 +425,9 @@ async function fetchCards(isUpdate = false) {
     localStorage.setItem(UPDATED_KEY, data.updatedAt || new Date().toISOString());
 
     const d = new Date(localStorage.getItem(UPDATED_KEY));
-    document.getElementById('update-info').textContent =
-      `最終更新: ${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
+    const dateStr = `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
+    document.getElementById('update-info').textContent = `最終更新: ${dateStr}`;
+    document.getElementById('footer-updated').textContent = dateStr;
 
     // 覚醒元マップ生成
     awakenFromMap = {};
@@ -976,5 +978,8 @@ window.addEventListener('load', async () => {
   // ログイン済みでなくてもカードだけ先読み（ゲスト向け）
 });
 </script>
+<footer class="site-footer">
+  i7card manager（非公式） / © 2026 sy_yss2 &nbsp;|&nbsp; カードマスター最終更新: <span id="footer-updated">-</span>
+</footer>
 </body>
 </html>
