@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>【非公式】i7card manager — 使い方</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@400;500;700&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#eef2f7; --surface:#fff; --surface2:#e3eaf4; --border:#c5d3e8;
+  --accent:#2a5298; --text:#1a2744; --text-muted:#6b7fa8;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'M PLUS 1p',sans-serif; min-height:100vh; }
+
+header {
+  background:var(--surface); border-bottom:2px solid var(--accent);
+  padding:13px 22px; display:flex; align-items:center; justify-content:space-between;
+  box-shadow:0 2px 12px rgba(42,82,152,.10);
+}
+.logo { font-family:'Rajdhani',sans-serif; font-size:1.3rem; font-weight:700; color:var(--accent); letter-spacing:.1em; text-decoration:none; }
+.back-btn {
+  padding:5px 14px; border:1.5px solid var(--border); background:var(--surface);
+  color:var(--text); border-radius:7px; cursor:pointer; font-family:'M PLUS 1p',sans-serif;
+  font-size:.8rem; text-decoration:none; transition:all .15s;
+}
+.back-btn:hover { border-color:var(--accent); color:var(--accent); }
+
+main { max-width:700px; margin:0 auto; padding:36px 16px; }
+
+.page-title {
+  font-family:'Rajdhani',sans-serif; font-size:1.4rem; font-weight:700;
+  color:var(--accent); letter-spacing:.08em; margin-bottom:28px;
+  padding-bottom:12px; border-bottom:2px solid var(--border);
+}
+
+.section { margin-bottom:32px; }
+.section-title {
+  font-size:.82rem; font-weight:700; color:var(--accent);
+  letter-spacing:.06em; margin-bottom:12px;
+  display:flex; align-items:center; gap:8px;
+}
+.section-title::before {
+  content:''; display:inline-block; width:4px; height:1em;
+  background:var(--accent); border-radius:2px;
+}
+.section-body {
+  background:var(--surface); border:1.5px solid var(--border);
+  border-radius:10px; padding:18px 20px; font-size:.85rem;
+  line-height:1.9; color:var(--text);
+}
+.section-body p + p { margin-top:10px; }
+
+.step-list { display:flex; flex-direction:column; gap:12px; }
+.step {
+  display:flex; gap:14px; align-items:flex-start;
+}
+.step-num {
+  min-width:26px; height:26px; border-radius:50%;
+  background:var(--accent); color:#fff;
+  font-size:.75rem; font-weight:700;
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0; margin-top:2px;
+}
+.step-text { font-size:.85rem; line-height:1.8; }
+.step-text strong { color:var(--accent); }
+
+.status-list { display:flex; flex-direction:column; gap:8px; margin-top:4px; }
+.status-item {
+  display:flex; align-items:center; gap:12px;
+  padding:10px 14px; border-radius:8px; border:1.5px solid var(--border);
+  background:var(--surface);
+}
+.status-badge {
+  padding:3px 10px; border-radius:12px; font-size:.72rem; font-weight:700;
+  white-space:nowrap; flex-shrink:0;
+}
+.status-desc { font-size:.82rem; line-height:1.6; color:var(--text); }
+
+.info-box {
+  background:#f0f4fb; border:1.5px solid var(--border);
+  border-left:4px solid var(--accent);
+  border-radius:8px; padding:14px 18px;
+  font-size:.82rem; line-height:1.8; color:var(--text-muted);
+  margin-top:12px;
+}
+
+.mode-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+@media(max-width:480px){ .mode-grid { grid-template-columns:1fr; } }
+.mode-card {
+  border:1.5px solid var(--border); border-radius:10px;
+  padding:14px 16px; background:var(--surface);
+}
+.mode-card-title { font-size:.82rem; font-weight:700; margin-bottom:8px; color:var(--accent); }
+.mode-card ul { font-size:.8rem; line-height:1.9; padding-left:1em; color:var(--text); }
+
+footer {
+  text-align:center; padding:32px 16px;
+  font-size:.72rem; color:var(--text-muted);
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="logo">i7card manager</a>
+  <a href="index.html" class="back-btn">← カード一覧に戻る</a>
+</header>
+
+<main>
+  <div class="page-title">◆ 使い方</div>
+
+  <!-- できること -->
+  <div class="section">
+    <div class="section-title">このサイトでできること</div>
+    <div class="section-body">
+      <p>アイドリッシュセブンのカード所持状況を管理できる非公式ツールです。</p>
+      <p>・所持カードのステータス管理（一覧・控え室・覚醒済など）<br>
+         ・スキルレベルの記録<br>
+         ・覚醒元・覚醒先カードの確認<br>
+         ・貸せるカード・借りたいカードの画像出力（Twitter/X共有用）</p>
+      <div class="info-box">
+        💡 ログインしなくてもカード一覧の閲覧はできます（ゲストモード）。所持データの記録・同期にはGoogleログインが必要です。
+      </div>
+    </div>
+  </div>
+
+  <!-- ゲストとログインの違い -->
+  <div class="section">
+    <div class="section-title">ゲストモードとログインの違い</div>
+    <div class="section-body">
+      <div class="mode-grid">
+        <div class="mode-card">
+          <div class="mode-card-title">👤 ゲストモード</div>
+          <ul>
+            <li>ログイン不要</li>
+            <li>カード一覧の閲覧OK</li>
+            <li>フィルター・検索OK</li>
+            <li>所持データの変更は不可</li>
+          </ul>
+        </div>
+        <div class="mode-card">
+          <div class="mode-card-title">🔑 Googleログイン</div>
+          <ul>
+            <li>所持ステータスの変更</li>
+            <li>スキルレベルの記録</li>
+            <li>データの自動保存・同期</li>
+            <li>画像出力機能の利用</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ステータスの説明 -->
+  <div class="section">
+    <div class="section-title">所持ステータスの種類</div>
+    <div class="section-body">
+      <div class="status-list">
+        <div class="status-item">
+          <span class="status-badge" style="background:#fef2f2;color:#991b1b;border:1.5px solid #fca5a5;">一覧</span>
+          <span class="status-desc">現在手元にあって一覧に入れているカード</span>
+        </div>
+        <div class="status-item">
+          <span class="status-badge" style="background:#fff7ed;color:#9a3412;border:1.5px solid #fdba74;">覚醒/お別れ済</span>
+          <span class="status-desc">覚醒させた・お別れしたカード（所持履歴として残す用）</span>
+        </div>
+        <div class="status-item">
+          <span class="status-badge" style="background:#fffbeb;color:#92400e;border:1.5px solid #fde68a;">控え室</span>
+          <span class="status-desc">持っているけど一覧には入れていないカード</span>
+        </div>
+        <div class="status-item">
+          <span class="status-badge" style="background:#eff6ff;color:#1e40af;border:1.5px solid #bfdbfe;">未所持閲覧済</span>
+          <span class="status-desc">持っていないが確認済みのカード</span>
+        </div>
+        <div class="status-item">
+          <span class="status-badge" style="background:#f9fafb;color:#6b7280;border:1.5px solid #e5e7eb;">未所持未閲覧</span>
+          <span class="status-desc">まだ確認していないカード（デフォルト）</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 基本的な使い方 -->
+  <div class="section">
+    <div class="section-title">基本的な使い方</div>
+    <div class="section-body">
+      <div class="step-list">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-text">右上の<strong>「ログイン」</strong>からGoogleアカウントでログインします。</div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-text">カード一覧が表示されます。キャラ・レアリティで<strong>フィルター</strong>して探しやすくなります。</div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-text">カード右下の<strong>ステータス選択</strong>から所持状況を変更します。変更は自動保存されます。</div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-text">覚醒元・覚醒先が表示されているカードはクリックすると<strong>覚醒先のカード情報</strong>をポップアップで確認できます。</div>
+        </div>
+        <div class="step">
+          <div class="step-num">5</div>
+          <div class="step-text">右上の<strong>「画像出力」</strong>から貸せるカード・借りたいカードをTwitter/X投稿用の画像として書き出せます。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  i7card manager（非公式） / © 2026 sy_yss2
+</footer>
+
+</body>
+</html>
