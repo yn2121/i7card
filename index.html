@@ -657,7 +657,7 @@ function buildCardHTML(c) {
   const rc = RARITY_COLORS[c.rarity] || '#9ca3af';
   const awakenCard = c.awakenId ? masterCards.find(x => x.id === c.awakenId) : null;
   const max = SKILL_MAX[c.rarity] || 0;
-  const lv  = myData[c.id + '_lv'] ?? 0;
+  const lv  = myData[c.id + '_lv'] ?? 1;
   return `
     <div class="card-top">
       <div>
@@ -684,7 +684,7 @@ function buildCardHTML(c) {
     ${max ? `<div class="skill-lv-wrap">
       <span class="skill-lv-label">スキルLv</span>
       <div class="lv-stepper">
-        <button class="lv-btn" onclick="changeLv('${c.id}',${max},-1,this)" ${!currentUser || lv<=0?'disabled':''}>−</button>
+        <button class="lv-btn" onclick="changeLv('${c.id}',${max},-1,this)" ${!currentUser || lv<=1?'disabled':''}>−</button>
         <span class="lv-val">${lv}</span>
         <button class="lv-btn" onclick="changeLv('${c.id}',${max},1,this)" ${!currentUser || lv>=max?'disabled':''}>＋</button>
         <span class="lv-max">/ ${max}</span>
@@ -731,7 +731,7 @@ function changeStatus(id, sel) {
 function changeLv(id, max, delta, btn) {
   const stepper = btn.closest('.lv-stepper');
   const valEl   = stepper.querySelector('.lv-val');
-  const cur  = myData[id + '_lv'] ?? 0;
+  const cur  = myData[id + '_lv'] ?? 1;
   const next = Math.max(0, Math.min(max, cur + delta));
   myData[id + '_lv'] = next;
   valEl.textContent = next;
@@ -909,7 +909,7 @@ function openAwakenModal(id) {
   const status = myData[card.id] || 'unseen';
   const rc = RARITY_COLORS[card.rarity] || '#9ca3af';
   const max = SKILL_MAX[card.rarity] || 0;
-  const lv  = myData[card.id + '_lv'] ?? 0;
+  const lv  = myData[card.id + '_lv'] ?? 1;
 
   const content = document.getElementById('awaken-modal-content');
   content.innerHTML = `
@@ -935,7 +935,7 @@ function openAwakenModal(id) {
 }
 
 function changeModalLv(id, max, delta) {
-  const cur  = myData[id + '_lv'] ?? 0;
+  const cur  = myData[id + '_lv'] ?? 1;
   const next = Math.max(0, Math.min(max, cur + delta));
   myData[id + '_lv'] = next;
   document.getElementById('modal-lv-val').textContent = next;
