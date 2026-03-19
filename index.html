@@ -306,6 +306,7 @@ const GAS_URL     = 'https://script.google.com/macros/s/AKfycbwjn2KwEibgaCussbq8
 const MASTER_KEY  = 'i7card_master';
 const UPDATED_KEY = 'i7card_updatedat';
 const USER_KEY    = 'i7card_user';
+const MYDATA_KEY   = 'i7card_mydata_cache';
 
 const SKILL_MAX = { N:0, R:0, SR:3, SSR:4, UR:5 };
 const STATUS_LABELS = {
@@ -453,16 +454,29 @@ async function fetchCards(isUpdate = false) {
 // =====================================================
 async function loadMyData() {
   if (!currentUser) return;
+
+  // キャッシュがあれば即表示
+  const cacheKey = MYDATA_KEY + '_' + currentUser.id;
+  const cached = localStorage.getItem(cacheKey);
+  if (cached) {
+    try {
+      myData = JSON.parse(cached);
+      render();
+    } catch {}
+  }
+
+  // バックグラウンドでGASから最新データ取得
   setSaveState('saving');
   try {
     const res  = await fetch(`${GAS_URL}?action=load&user=${encodeURIComponent(currentUser.id)}`);
     const data = await res.json();
     if (data.ok) {
       myData = data.myData || {};
+      localStorage.setItem(cacheKey, JSON.stringify(myData));
+      render();
     }
     setSaveState('saved');
   } catch {
-    // 失敗してもローカルキャッシュで続行
     setSaveState('');
   }
 }
