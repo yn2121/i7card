@@ -291,7 +291,7 @@ select.filter-sel { cursor:pointer; }
       <div style="font-weight:700;font-size:1rem;margin-bottom:16px;">画像出力</div>
       <div style="display:flex;flex-direction:column;gap:10px;">
         <button class="btn btn-primary" onclick="exportImage('lend')">貸せるカード（一覧・控え室）</button>
-        <button class="btn btn-primary" onclick="exportImage('borrow')">借りたいカード（未所持）</button>
+        <button class="btn btn-primary" onclick="exportImage('borrow')">借りたいカード（未所持未閲覧）</button>
       </div>
       <div id="export-status" style="font-size:.75rem;color:var(--text-muted);margin-top:12px;"></div>
     </div>
@@ -860,14 +860,14 @@ async function exportImage(type) {
 
   const targets = type === 'lend'
     ? masterCards.filter(c => ['list','bench'].includes(myData[c.id] || 'unseen'))
-    : masterCards.filter(c => ['unseen','viewed'].includes(myData[c.id] || 'unseen'));
+    : masterCards.filter(c => (myData[c.id] || 'unseen') === 'unseen');
 
   if (!targets.length) {
     statusEl.textContent = '対象カードがありません';
     return;
   }
 
-  const PAGE = 20;
+  const PAGE = 30;
   const pages = Math.ceil(targets.length / PAGE);
   const label = type === 'lend' ? '貸せるカード' : '借りたいカード';
   const headerColor = type === 'lend' ? '#e57373' : '#64a8e8';
@@ -885,7 +885,7 @@ async function exportImage(type) {
     wrap.appendChild(header);
 
     const grid = document.createElement('div');
-    grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:8px;';
+    grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;';
 
     slice.forEach(cd => {
       const rc = RARITY_COLORS[cd.rarity] || '#9ca3af';
