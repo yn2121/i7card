@@ -867,7 +867,7 @@ async function exportImage(type) {
     return;
   }
 
-  const PAGE = 30;
+  const PAGE = 40;
   const pages = Math.ceil(targets.length / PAGE);
   const label = type === 'lend' ? '貸せるカード' : '借りたいカード';
   const headerColor = type === 'lend' ? '#e57373' : '#64a8e8';
@@ -885,7 +885,7 @@ async function exportImage(type) {
     wrap.appendChild(header);
 
     const grid = document.createElement('div');
-    grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;';
+    grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;';
 
     slice.forEach(cd => {
       const rc = RARITY_COLORS[cd.rarity] || '#9ca3af';
