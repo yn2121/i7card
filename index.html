@@ -199,6 +199,7 @@ select.filter-sel { cursor:pointer; }
 .save-dot { width:6px; height:6px; border-radius:50%; background:#d1d5db; }
 .save-dot.saving { background:#f59e0b; animation:pulse .6s infinite; }
 .save-dot.saved  { background:#10b981; }
+.save-dot.error  { background:#ef4444; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
 
 .empty { grid-column:1/-1; text-align:center; padding:48px 20px; color:var(--text-muted); }
@@ -333,6 +334,9 @@ const COL = { id:'カードID', name:'カード名', chara:'名前', rarity:'レ
 let masterCards = [];
 let awakenFromMap = {}; // { 覚醒先ID: 覚醒元カード }
 let myData      = {};
+let myDataLoaded = false;  // サーバーから読み込み成功するまで保存しない
+let pending     = {};     // 未保存の変更 { key: value }
+let saving = false, resaveRequested = false;
 let activeTab   = 'list';
 let currentUser = null;
 let saveTimer   = null;
@@ -413,6 +417,7 @@ function logout() {
   if (!confirm('ログアウトしますか？')) return;
   currentUser = null;
   myData = {};
+  pending = {}; myDataLoaded = false;
   localStorage.removeItem(USER_KEY);
   document.getElementById('login-screen').style.display = '';
   document.getElementById('main-content').style.display = 'none';
@@ -463,32 +468,53 @@ async function fetchCards(isUpdate = false) {
 // =====================================================
 // 所持データ読み込み（GASから）
 // =====================================================
+const PENDING_KEY = 'i7card_pending';
+function cacheKeyFor(id) { return MYDATA_KEY + '_' + id; }
+
+// キャッシュと未保存の変更をローカルに残す
+function persistLocal() {
+  if (!currentUser) return;
+  try {
+    localStorage.setItem(cacheKeyFor(currentUser.id), JSON.stringify(myData));
+    localStorage.setItem(PENDING_KEY + '_' + currentUser.id, JSON.stringify(pending));
+  } catch {}
+}
+
+// 値の変更は必ずここを通す（未保存の変更を pending に記録して保存予約）
+function setMy(key, value) {
+  myData[key] = value;
+  pending[key] = value;
+  persistLocal();
+  scheduleSave();
+}
+
 async function loadMyData() {
   if (!currentUser) return;
+  myDataLoaded = false;
+  // キャッシュ＋未保存の変更があれば先に表示（体感速度のため）
+  try {
+    const cached = localStorage.getItem(cacheKeyFor(currentUser.id));
+    if (cached) myData = JSON.parse(cached);
+    const p = localStorage.getItem(PENDING_KEY + '_' + currentUser.id);
+    pending = p ? JSON.parse(p) : {};
+    if (cached) render();
+  } catch {}
+  await fetchServerData();
+}
 
-  // キャッシュがあれば即表示
-  const cacheKey = MYDATA_KEY + '_' + currentUser.id;
-  const cached = localStorage.getItem(cacheKey);
-  if (cached) {
-    try {
-      myData = JSON.parse(cached);
-      render();
-    } catch {}
-  }
-
-  // バックグラウンドでGASから最新データ取得
+async function fetchServerData() {
   setSaveState('saving');
   try {
     const res  = await fetch(`${GAS_URL}?action=load&user=${encodeURIComponent(currentUser.id)}`);
     const data = await res.json();
-    if (data.ok) {
-      myData = data.myData || {};
-      localStorage.setItem(cacheKey, JSON.stringify(myData));
-      render();
-    }
-    setSaveState('saved');
+    if (!data.ok) throw new Error(data.error || 'load failed');
+    myData = Object.assign({}, data.myData || {}, pending); // サーバーの内容 + 未保存の変更
+    myDataLoaded = true;
+    persistLocal();
+    render();
+    if (Object.keys(pending).length) scheduleSave(); else setSaveState('saved');
   } catch {
-    setSaveState('');
+    setSaveState('error');
   }
 }
 
@@ -498,25 +524,43 @@ async function loadMyData() {
 function scheduleSave() {
   setSaveState('saving');
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(async () => {
-    if (!currentUser) return;
-    try {
-      await fetch(GAS_URL, {
-        method: 'POST',
-        body: JSON.stringify({ action:'save', user: currentUser.id, data: myData, origin: location.origin }),
-      });
-      setSaveState('saved');
-    } catch {
-      setSaveState('');
-    }
-  }, 1200); // 1.2秒後に保存（連続操作をまとめる）
+  saveTimer = setTimeout(() => doSave(false), 1200); // 連続操作をまとめる
+}
+
+async function doSave(urgent) {
+  if (!currentUser) return;
+  clearTimeout(saveTimer);
+  // 読み込み成功前に保存すると既存データを上書きしてしまうので、先に読み込む
+  if (!myDataLoaded) { await fetchServerData(); return; }
+  if (!Object.keys(pending).length) { setSaveState('saved'); return; }
+  if (saving) { resaveRequested = true; return; }
+
+  saving = true;
+  const sent = Object.assign({}, pending);
+  const body = JSON.stringify({ action:'save', user: currentUser.id, data: myData, origin: location.origin });
+  try {
+    const res = await fetch(GAS_URL, { method:'POST', body, keepalive: !!urgent && body.length < 60000 });
+    const r   = await res.json();
+    if (!r.ok) throw new Error(r.error || 'save failed');
+    // 送信できた変更だけ未保存リストから外す
+    Object.keys(sent).forEach(k => { if (pending[k] === sent[k]) delete pending[k]; });
+    persistLocal();
+    setSaveState(Object.keys(pending).length ? 'saving' : 'saved');
+  } catch {
+    setSaveState('error');
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => doSave(false), 15000); // 15秒後に再試行
+  } finally {
+    saving = false;
+    if (resaveRequested) { resaveRequested = false; scheduleSave(); }
+  }
 }
 
 function setSaveState(state) {
   const dot  = document.getElementById('save-dot');
   const text = document.getElementById('save-text');
   dot.className = 'save-dot' + (state ? ' ' + state : '');
-  text.textContent = state === 'saving' ? '保存中...' : state === 'saved' ? '保存済み' : '';
+  text.textContent = state === 'saving' ? '保存中...' : state === 'saved' ? '保存済み' : state === 'error' ? '保存失敗' : '';
 }
 
 // =====================================================
@@ -746,9 +790,8 @@ function render() {
 // ステータス・スキルLv変更
 // =====================================================
 function changeStatus(id, sel) {
-  myData[id] = sel.value;
+  setMy(id, sel.value);
   sel.dataset.v = sel.value;
-  scheduleSave();
   updateCounts(); updateProgress();
   if (activeTab && myData[id] !== activeTab) setTimeout(() => render(), 2000);
 }
@@ -757,12 +800,11 @@ function changeLv(id, max, delta, btn) {
   const stepper = btn.closest('.lv-stepper');
   const valEl   = stepper.querySelector('.lv-val');
   const cur  = myData[id + '_lv'] ?? 1;
-  const next = Math.max(0, Math.min(max, cur + delta));
-  myData[id + '_lv'] = next;
+  const next = Math.max(1, Math.min(max, cur + delta));
+  setMy(id + '_lv', next);
   valEl.textContent = next;
-  stepper.querySelectorAll('.lv-btn')[0].disabled = (next <= 0);
+  stepper.querySelectorAll('.lv-btn')[0].disabled = (next <= 1);
   stepper.querySelectorAll('.lv-btn')[1].disabled = (next >= max);
-  scheduleSave();
 }
 
 // =====================================================
@@ -949,7 +991,7 @@ function openAwakenModal(id) {
     ${max ? `<div class="skill-lv-wrap">
       <span class="skill-lv-label">スキルLv</span>
       <div class="lv-stepper">
-        <button class="lv-btn" onclick="changeModalLv('${card.id}',${max},-1)" ${!currentUser||lv<=0?'disabled':''}>−</button>
+        <button class="lv-btn" onclick="changeModalLv('${card.id}',${max},-1)" ${!currentUser||lv<=1?'disabled':''}>−</button>
         <span class="lv-val" id="modal-lv-val">${lv}</span>
         <button class="lv-btn" onclick="changeModalLv('${card.id}',${max},1)" ${!currentUser||lv>=max?'disabled':''}>＋</button>
         <span class="lv-max">/ ${max}</span>
@@ -961,13 +1003,12 @@ function openAwakenModal(id) {
 
 function changeModalLv(id, max, delta) {
   const cur  = myData[id + '_lv'] ?? 1;
-  const next = Math.max(0, Math.min(max, cur + delta));
-  myData[id + '_lv'] = next;
+  const next = Math.max(1, Math.min(max, cur + delta));
+  setMy(id + '_lv', next);
   document.getElementById('modal-lv-val').textContent = next;
   const btns = document.querySelectorAll(`#awaken-modal-content .lv-btn`);
-  if (btns[0]) btns[0].disabled = !currentUser || next <= 0;
+  if (btns[0]) btns[0].disabled = !currentUser || next <= 1;
   if (btns[1]) btns[1].disabled = !currentUser || next >= max;
-  scheduleSave();
 }
 
 function closeAwakenModal(e) {
@@ -1016,6 +1057,15 @@ window.addEventListener('load', async () => {
     await onLogin();
   }
   // ログイン済みでなくてもカードだけ先読み（ゲスト向け）
+});
+
+document.addEventListener('visibilitychange', () => {
+  if (!currentUser || !Object.keys(pending).length) return;
+  if (document.visibilityState === 'hidden') doSave(true);
+  else scheduleSave();
+});
+window.addEventListener('pagehide', () => {
+  if (currentUser && Object.keys(pending).length) doSave(true);
 });
 </script>
 <footer class="site-footer">
