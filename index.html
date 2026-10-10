@@ -608,8 +608,6 @@ function buildCharaFilter() {
     return d;
   };
 
-  // キャラクターセクション
-  addSep('キャラクター');
   // 全選択
   addSpecialTag('全選択', selectedCharas.size > 0 && MAIN_CHARAS.every(ch => selectedCharas.has(ch)) && (otherCharaList.length === 0 || otherCharasSelected), () => {
     const allSelected = MAIN_CHARAS.every(ch => selectedCharas.has(ch)) && otherCharasSelected;
